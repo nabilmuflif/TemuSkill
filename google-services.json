@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "609213614576",
+    "project_id": "temuskill-44524",
+    "storage_bucket": "temuskill-44524.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609213614576:android:74d1f59debff9f43d1f535",
+        "android_client_info": {
+          "package_name": "com.example.temuskill"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuXIHYOm7zlpXTP5j7PZZJJMhZu29qiyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

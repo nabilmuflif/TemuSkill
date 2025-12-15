@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard_admin"
+        android:title="Dashboard" />
+
+    <item
+        android:id="@+id/nav_users"
+        android:icon="@drawable/ic_users_admin"
+        android:title="Pengguna" />
+
+    <item
+        android:id="@+id/nav_services"
+        android:icon="@drawable/ic_services_admin"
+        android:title="Jasa" />
+
+    <item
+        android:id="@+id/nav_reports"
+        android:icon="@drawable/ic_report_admin"
+        android:title="Laporan" />
+
+</menu>

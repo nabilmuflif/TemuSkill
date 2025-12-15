@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Menunggu Pembayaran"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="18sp"
+        android:textColor="#333"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp"/>
+
+    <ImageView
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/ic_qr_dummy"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan QRIS di atas untuk membayar"
+        android:layout_marginTop="20dp"
+        android:textColor="#757575"/>
+
+    <TextView
+        android:id="@+id/tv_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="08 menit : 30 detik"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="16sp"
+        android:textColor="#111D5E"
+        android:layout_marginTop="8dp"/>
+
+    <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
+
+    <Button
+        android:id="@+id/btn_done_payment"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Saya Sudah Bayar"
+        android:backgroundTint="#111D5E"
+        android:fontFamily="@font/poppins_bold"/>
+
+</LinearLayout>

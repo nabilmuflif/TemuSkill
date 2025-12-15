@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/iv_role_image"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:layout_marginBottom="32dp"/>
+
+    <TextView
+        android:id="@+id/tv_role_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pencari Jasa"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="26sp"
+        android:textColor="#111D5E"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/tv_role_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temukan berbagai jasa terpercaya dengan mudah."
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:textAlignment="center"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="40dp"
+        android:paddingHorizontal="16dp"/>
+
+    <Button
+        android:id="@+id/btn_select_role"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Pilih Sebagai Pencari"
+        android:fontFamily="@font/poppins_bold"
+        android:backgroundTint="#E3F2FD"
+        android:textColor="#111D5E"
+        android:textAllCaps="false"
+        android:textSize="16sp"/>
+
+</LinearLayout>

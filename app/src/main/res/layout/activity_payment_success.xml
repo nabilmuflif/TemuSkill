@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="40dp"
+    android:background="#FFFFFF">
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_payment_success"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selamat Pembayaran\nAnda Berhasil!"
+        android:textAlignment="center"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="20sp"
+        android:textColor="#111D5E"
+        android:layout_marginTop="30dp"/>
+
+    <Button
+        android:id="@+id/btn_home"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Kembali ke Beranda"
+        android:backgroundTint="#111D5E"
+        android:layout_marginTop="50dp"/>
+
+</LinearLayout>

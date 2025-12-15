@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yakin ingin menghapus\npengguna?"
+            android:textAlignment="center"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <android.widget.Button
+                android:id="@+id/btn_yes"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:text="Ya"
+                android:textAllCaps="false"
+                android:backgroundTint="#E3F2FD"
+                android:textColor="#2196F3"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+
+            <android.widget.Button
+                android:id="@+id/btn_no"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:text="Tidak"
+                android:textAllCaps="false"
+                android:backgroundTint="#FFEBEE"
+                android:textColor="#F44336"
+                android:fontFamily="@font/poppins_bold"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

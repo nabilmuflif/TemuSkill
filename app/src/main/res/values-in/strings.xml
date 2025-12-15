@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">TemuSkill</string>
+
+    <string name="btn_save">Simpan Perubahan</string>
+    <string name="btn_cancel">Batal</string>
+    <string name="btn_back">Kembali</string>
+    <string name="btn_login">Masuk</string>
+    <string name="btn_register">Daftar</string>
+    <string name="loading">Memuat...</string>
+    <string name="success">Berhasil</string>
+    <string name="error">Terjadi Kesalahan</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="btn_apply">Terapkan</string>
+
+    <string name="login_title">Masuk ke TemuSkill</string>
+    <string name="login_desc">Lanjutkan aktivitasmu dan temukan peluang di sekitarmu.</string>
+    <string name="register_title">Daftar Akun</string>
+    <string name="register_desc">Gabung komunitas kami dan mulai menjelajah.</string>
+    <string name="email_hint">Masukkan email</string>
+    <string name="password_hint">Masukkan kata sandi</string>
+    <string name="phone_hint">Nomor Telepon</string>
+    <string name="role_seeker">Pencari Jasa</string>
+    <string name="role_provider">Penyedia Jasa</string>
+    <string name="no_account">Belum punya akun? Daftar disini!</string>
+    <string name="have_account">Sudah punya akun? Masuk disini!</string>
+    <string name="forgot_password">Lupa Kata Sandi?</string>
+    <string name="name_label">Nama Lengkap</string>
+    <string name="phone_label">Nomor Telepon</string>
+    <string name="email_label">Email (Tidak dapat diubah)</string>
+    <string name="gender_label">Jenis Kelamin</string>
+    <string name="camera_change">Ganti Foto</string>
+    <string name="name_hint">Masukkan nama lengkap</string>
+    <string name="confirm_password_hint">Konfirmasi Kata Sandi</string>
+    <string name="terms_agree">Dengan mendaftar, Anda menyetujui Syarat dan Ketentuan kami.</string>
+    <string name="role_label">Daftar sebagai:</string>
+
+    <string name="greeting">Halo, %1$s!</string>
+    <string name="find_service_headline">Temukan penyedia jasa\nterpercaya di sekitarmu</string>
+    <string name="search_hint">Cari jasa...</string>
+    <string name="promo_label">Promo Spesial</string>
+    <string name="categories_label">Kategori Layanan</string>
+    <string name="recommendation_label">Rekomendasi Jasa</string>
+    <string name="book_now">Pesan Sekarang</string>
+
+    <string name="welcome_provider">Halo, Mitra!</string>
+    <string name="provider_mode">Mode Penyedia Jasa</string>
+    <string name="ready_to_work">Siap menerima pesanan hari ini?</string>
+    <string name="balance">Saldo</string>
+    <string name="income_today">Pendapatan Hari Ini</string>
+    <string name="trx_today">Transaksi Hari Ini</string>
+    <string name="income_weekly">Pendapatan Pekan Ini</string>
+    <string name="last_update">Terakhir update: Hari ini, %1$s</string>
+    <string name="rating_label">Rating Terakhir</string>
+    <string name="schedule_today">Jadwal Hari Ini</string>
+    <string name="no_schedule">Belum ada jadwal spesifik.</string>
+    <string name="view_all_schedule">Lihat Semua Jadwal</string>
+    <string name="add_new_service">Tambah Jasa Baru</string>
+    <string name="manage_services">Jasa Saya</string>
+
+    <string name="order_detail_title">Detail Pesanan</string>
+    <string name="order_confirmation">Konfirmasi Pesanan</string>
+    <string name="duration_label">Durasi</string>
+    <string name="total_price">Total Biaya</string>
+    <string name="payment_method">Metode Pembayaran</string>
+    <string name="btn_confirm_order">Konfirmasi Pesanan</string>
+    <string name="btn_cancel_order">Batalkan Pesanan</string>
+    <string name="btn_accept_order">Terima Pesanan Ini</string>
+    <string name="btn_complete_order">Pekerjaan Selesai</string>
+    <string name="status_pending">Menunggu</string>
+    <string name="status_active">Aktif</string>
+    <string name="status_completed">Selesai</string>
+    <string name="status_cancelled">Dibatalkan</string>
+    <string name="qris_instruction">Scan QRIS di atas untuk membayar</string>
+    <string name="payment_success">Pembayaran Berhasil!</string>
+    <string name="back_to_home">Kembali ke Beranda</string>
+
+    <string name="profile_title">Profil Saya</string>
+    <string name="edit_profile">Edit Profil</string>
+    <string name="app_language">Bahasa Aplikasi</string>
+    <string name="about_us">Tentang Kami</string>
+    <string name="logout">Keluar</string>
+    <string name="what_is_app">Apa itu TemuSkill?</string>
+    <string name="our_vision">Visi Kami</string>
+    <string name="our_mission">Misi Kami</string>
+    <string name="content_about">TemuSkill adalah platform marketplace jasa yang menghubungkan pencari jasa dengan ahli lokal terpercaya.</string>
+    <string name="content_vision">Menjadi Platform Jasa No. 1 di Indonesia yang memberdayakan talenta lokal.</string>
+    <string name="content_mission">1. Memberdayakan UMKM.\n2. Memudahkan akses jasa.\n3. Digitalisasi jasa lokal.</string>
+
+    <string name="title_order_detail_center">Detail Pesanan</string>
+    <string name="label_pickup_address">Lokasi Pengerjaan</string>
+    <string name="label_driver_partner">Mitra Jasa</string>
+    <string name="label_payment">Rincian Pembayaran</string>
+    <string name="btn_view_profile">Lihat Profil</string>
+    <string name="btn_call">Hubungi</string>
+    <string name="btn_chat">Chat</string>
+
+    <string name="title_cancel_order">Batalkan Pesanan</string>
+    <string name="label_cancel_reason">Silakan pilih alasan:</string>
+    <string name="reason_driver_too_long">Penyedia jasa terlalu lama</string>
+    <string name="reason_changed_mind">Saya berubah pikiran</string>
+    <string name="reason_wrong_location">Salah alamat / lokasi</string>
+    <string name="reason_other">Alasan lainnya</string>
+    <string name="btn_submit_cancel">Kirim Pembatalan</string>
+    <string name="msg_cancel_success">Pesanan berhasil dibatalkan.</string>
+    <string name="msg_cancel_failed">Gagal membatalkan pesanan.</string>
+    <string name="msg_select_reason">Pilih alasan terlebih dahulu.</string>
+
+    <string name="sample_address">Jl. Jend. Sudirman No. 1, Jakarta</string>
+    <string name="sample_driver_name">Budi Santoso</string>
+    <string name="sample_driver_rating">4.9 (120)</string>
+    <string name="sample_plate_number">Teknisi Ahli</string>
+    <string name="sample_payment_method">Tunai</string>
+    <string name="sample_price">Rp 150.000</string>
+
+</resources>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="24dp">
+
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_btn_back_circle">
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_arrow_back_ios"
+            app:tint="#FFFFFF"/>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Permintaan Anda telah\nterkirim"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="22sp"
+        android:textColor="#333"
+        android:layout_marginTop="40dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hitung mundur dimulai untuk mendapatkan lencana terverifikasi, perlindungan dukungan, pengoptimalan pencarian, dan banyak lagi cara untuk meningkatkan pengalaman Anda."
+        android:textSize="13sp"
+        android:textColor="#757575"
+        android:layout_marginTop="16dp"
+        android:lineSpacingExtra="4dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waktu verifikasi akun juga bisa bergantung pada faktor lainnya, seperti seberapa lama akun Anda aktif. Pelajari selengkapnya tentang persyaratan kelayakan Verifikasi TemuSkill"
+        android:textSize="13sp"
+        android:textColor="#757575"
+        android:layout_marginTop="24dp"
+        android:lineSpacingExtra="4dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <View
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/bg_circle_orange"
+        android:layout_marginStart="-40dp"
+        android:layout_marginBottom="40dp"/>
+
+    <Button
+        android:id="@+id/btn_oke"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Oke"
+        android:textAllCaps="false"
+        android:backgroundTint="#111D5E"
+        android:fontFamily="@font/poppins_bold"
+        app:cornerRadius="28dp"/>
+
+</LinearLayout>

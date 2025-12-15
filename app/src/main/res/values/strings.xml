@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name">TemuSkill</string>
+
+    <string name="btn_save">Save Changes</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_register">Register</string>
+    <string name="loading">Loading...</string>
+    <string name="success">Success</string>
+    <string name="error">Error</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="btn_apply">Apply</string>
+
+    <string name="login_title">Login to TemuSkill</string>
+    <string name="login_desc">Continue your activity and find opportunities around you.</string>
+    <string name="register_title">Create Account</string>
+    <string name="register_desc">Join our community and start exploring.</string>
+    <string name="email_hint">Enter your email</string>
+    <string name="password_hint">Enter password</string>
+    <string name="phone_hint">Phone Number</string>
+    <string name="role_seeker">Service Seeker</string>
+    <string name="role_provider">Service Provider</string>
+    <string name="no_account">Don\'t have an account? Register here!</string>
+    <string name="have_account">Already have an account? Login here!</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="name_label">Full Name</string>
+    <string name="phone_label">Phone Number</string>
+    <string name="email_label">Email (Cannot be changed)</string>
+    <string name="gender_label">Gender</string>
+    <string name="camera_change">Change Photo</string>
+    <string name="name_hint">Enter full name</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="terms_agree">By registering, you agree to our Terms and Conditions.</string>
+    <string name="role_label">Register as:</string>
+
+    <string name="greeting">Hello, %1$s!</string>
+    <string name="find_service_headline">Find trusted service providers\naround you</string>
+    <string name="search_hint">Search for services...</string>
+    <string name="promo_label">Special Promo</string>
+    <string name="categories_label">Categories</string>
+    <string name="recommendation_label">Recommended Services</string>
+    <string name="book_now">Book Now</string>
+
+    <string name="welcome_provider">Welcome, Partner!</string>
+    <string name="provider_mode">Provider Mode</string>
+    <string name="ready_to_work">Ready to accept orders today?</string>
+    <string name="balance">Balance</string>
+    <string name="income_today">Today\'s Income</string>
+    <string name="trx_today">Transactions Today</string>
+    <string name="income_weekly">Weekly Income</string>
+    <string name="last_update">Last updated: Today, %1$s</string>
+    <string name="rating_label">Latest Rating</string>
+    <string name="schedule_today">Today\'s Schedule</string>
+    <string name="no_schedule">No specific schedule yet.</string>
+    <string name="view_all_schedule">View All Schedules</string>
+    <string name="add_new_service">Add New Service</string>
+    <string name="manage_services">My Services</string>
+
+    <string name="order_detail_title">Order Detail</string>
+    <string name="order_confirmation">Order Confirmation</string>
+    <string name="duration_label">Duration</string>
+    <string name="total_price">Total Price</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="btn_confirm_order">Confirm Order</string>
+    <string name="btn_cancel_order">Cancel Order</string>
+    <string name="btn_accept_order">Accept Order</string>
+    <string name="btn_complete_order">Complete Order</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_active">Active</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="qris_instruction">Scan QRIS above to pay</string>
+    <string name="payment_success">Payment Successful!</string>
+    <string name="back_to_home">Back to Home</string>
+
+    <string name="profile_title">My Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="app_language">App Language</string>
+    <string name="about_us">About Us</string>
+    <string name="logout">Logout</string>
+    <string name="what_is_app">What is TemuSkill?</string>
+    <string name="our_vision">Our Vision</string>
+    <string name="our_mission">Our Mission</string>
+    <string name="content_about">TemuSkill is a marketplace platform connecting service seekers with local experts.</string>
+    <string name="content_vision">To become the #1 Service Platform in Indonesia empowering local talents.</string>
+    <string name="content_mission">1. Empowering MSMEs.\n2. Simplifying service access.\n3. Digitalizing local services.</string>
+
+    <string name="title_order_detail_center">Order Details</string>
+    <string name="label_pickup_address">Location / Address</string>
+    <string name="label_driver_partner">Service Partner</string>
+    <string name="label_payment">Payment Detail</string>
+    <string name="btn_view_profile">View Profile</string>
+    <string name="btn_call">Call</string>
+    <string name="btn_chat">Chat</string>
+
+    <string name="title_cancel_order">Cancel Order</string>
+    <string name="label_cancel_reason">Please select a reason:</string>
+    <string name="reason_driver_too_long">Provider taking too long</string>
+    <string name="reason_changed_mind">I changed my mind</string>
+    <string name="reason_wrong_location">Wrong location/address</string>
+    <string name="reason_other">Other reasons</string>
+    <string name="btn_submit_cancel">Submit Cancellation</string>
+    <string name="msg_cancel_success">Order successfully cancelled.</string>
+    <string name="msg_cancel_failed">Failed to cancel order.</string>
+    <string name="msg_select_reason">Please select a reason first.</string>
+
+    <string name="sample_address">Jl. Jend. Sudirman No. 1, Jakarta</string>
+    <string name="sample_driver_name">Budi Santoso</string>
+    <string name="sample_driver_rating">4.9 (120)</string>
+    <string name="sample_plate_number">Expert Technician</string>
+    <string name="sample_payment_method">Cash</string>
+    <string name="sample_price">Rp 150.000</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
