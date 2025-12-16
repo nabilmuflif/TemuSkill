@@ -3,10 +3,11 @@ package com.example.temuskill.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate; // 1. Tambahan Import ini
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.example.temuskill.R;
+import com.example.temuskill.fragments.ChatFragment;
 import com.example.temuskill.fragments.ChatListFragment;
 import com.example.temuskill.fragments.HomeFragment;
 import com.example.temuskill.fragments.OrderFragment;
@@ -22,17 +23,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 2. PAKSA MODE TERANG (Light Mode)
-        // Kode ini harus diletakkan paling atas, sebelum super.onCreate atau setContentView
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         sessionManager = new SessionManager(this);
 
-        // 3. Cek Status Login
-        // Jika belum login, lempar kembali ke LoginActivity
         if (!sessionManager.isLoggedIn()) {
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -42,30 +38,68 @@ public class MainActivity extends AppCompatActivity {
         }
 
         bottomNav = findViewById(R.id.bottom_navigation);
+        setupBottomNavigation();
 
-        // 4. Set Fragment Awal saat aplikasi dibuka
         if (savedInstanceState == null) {
             loadInitialFragment();
+            // Cek apakah ada navigasi dari Activity lain (misal OrderDetail)
+            handleIncomingIntent(getIntent());
         }
+    }
 
-        // 5. Setup Listener Menu Bawah
-        setupBottomNavigation();
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("NAVIGATE_TO")) {
+            String destination = intent.getStringExtra("NAVIGATE_TO");
+
+            if ("CHAT_FRAGMENT".equals(destination)) {
+                String targetId = intent.getStringExtra("TARGET_USER_ID");
+                String targetName = intent.getStringExtra("TARGET_USER_NAME");
+
+                // TANGKAP ORDER ID (Revisi Penting)
+                String orderId = intent.getStringExtra("ORDER_ID");
+
+                openChatFragment(targetId, targetName, orderId);
+            }
+        }
+    }
+
+    private void openChatFragment(String targetId, String targetName, String orderId) {
+        // Set UI Bottom Nav ke Chat
+        bottomNav.setSelectedItemId(R.id.chatBtn);
+
+        ChatFragment chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+
+        // Masukkan data ke Bundle untuk dikirim ke ChatFragment
+        args.putString("TARGET_USER_ID", targetId);
+        args.putString("TARGET_USER_NAME", targetName);
+        args.putString("ORDER_ID", orderId); // Data Order ID
+
+        chatFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, chatFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void loadInitialFragment() {
-        // Cek Role User
         boolean isProvider = sessionManager.isPenyediaJasa();
-
         Fragment initialFragment;
+
         if (isProvider) {
-            // Jika Provider -> Buka Dashboard Provider
             initialFragment = new ProviderHomeFragment();
         } else {
-            // Jika Pencari -> Buka Home Biasa
             initialFragment = new HomeFragment();
         }
 
-        // Muat Fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, initialFragment)
                 .commit();
@@ -75,38 +109,24 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
-
-            // Ambil role user lagi untuk memastikan navigasi benar
             boolean isProvider = sessionManager.isPenyediaJasa();
 
             if (itemId == R.id.homeBtn) {
-                // LOGIKA UTAMA: Beda Home beda Role
-                if (isProvider) {
-                    selectedFragment = new ProviderHomeFragment();
-                } else {
-                    selectedFragment = new HomeFragment();
-                }
-
+                if (isProvider) selectedFragment = new ProviderHomeFragment();
+                else selectedFragment = new HomeFragment();
             } else if (itemId == R.id.pesananBtn) {
-                // Halaman Order
                 selectedFragment = new OrderFragment();
-
             } else if (itemId == R.id.chatBtn) {
-                // Halaman Chat
                 selectedFragment = new ChatListFragment();
-
             } else if (itemId == R.id.akunBtn) {
-                // Halaman Profil
                 selectedFragment = new ProfileFragment();
             }
 
-            // Ganti Fragment jika ada yang dipilih
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
                         .commit();
             }
-
             return true;
         });
     }

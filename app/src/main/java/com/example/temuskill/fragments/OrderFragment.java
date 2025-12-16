@@ -39,14 +39,14 @@ public class OrderFragment extends Fragment {
     private TextView tvEmpty;
     private CircleImageView ivProfileHeader;
 
-    private TextView filterAll, filterActive, filterCompleted, filterCancelled;
+    // Filter Chips
+    private TextView filterAll, filterActive, filterUnreviewed, filterCompleted, filterCancelled;
 
     private OrderAdapter adapter;
     private FirebaseFirestore db;
     private SessionManager sessionManager;
     private ListenerRegistration firestoreListener;
 
-    // [MODERN FIX] Activity Result Launcher
     private ActivityResultLauncher<Intent> rateOrderLauncher;
 
     private List<Order> allOrderList = new ArrayList<>();
@@ -61,7 +61,6 @@ public class OrderFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         sessionManager = new SessionManager(getContext());
 
-        // [MODERN FIX] Inisialisasi Launcher
         setupActivityResultLauncher();
 
         initViews(view);
@@ -71,20 +70,17 @@ public class OrderFragment extends Fragment {
         return view;
     }
 
-    // [MODERN FIX] Method Setup Launcher
     private void setupActivityResultLauncher() {
         rateOrderLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        // User selesai review! Refresh data
                         if (firestoreListener != null) {
                             firestoreListener.remove();
                         }
                         allOrderList.clear();
                         displayedList.clear();
 
-                        // Delay sedikit agar Firebase sempat update
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             startRealtimeUpdates();
                         }, 500);
@@ -114,8 +110,10 @@ public class OrderFragment extends Fragment {
         tvEmpty = view.findViewById(R.id.tv_empty);
         ivProfileHeader = view.findViewById(R.id.iv_profile_header);
 
+        // Filter Chips
         filterAll = view.findViewById(R.id.filter_all);
         filterActive = view.findViewById(R.id.filter_active);
+        filterUnreviewed = view.findViewById(R.id.filter_unreviewed); // Inisialisasi Tombol Baru
         filterCompleted = view.findViewById(R.id.filter_completed);
         filterCancelled = view.findViewById(R.id.filter_cancelled);
 
@@ -123,7 +121,6 @@ public class OrderFragment extends Fragment {
     }
 
     private void setupAdapter() {
-        // [MODERN FIX] Pass launcher ke adapter
         adapter = new OrderAdapter(displayedList, getContext(), sessionManager.isPenyediaJasa(), rateOrderLauncher);
         rvOrders.setAdapter(adapter);
     }
@@ -131,6 +128,7 @@ public class OrderFragment extends Fragment {
     private void setupFilterListeners() {
         filterAll.setOnClickListener(v -> applyFilter("ALL"));
         filterActive.setOnClickListener(v -> applyFilter("ACTIVE"));
+        filterUnreviewed.setOnClickListener(v -> applyFilter("UNREVIEWED")); // Listener Baru
         filterCompleted.setOnClickListener(v -> applyFilter("COMPLETED"));
         filterCancelled.setOnClickListener(v -> applyFilter("CANCELLED"));
     }
@@ -188,12 +186,21 @@ public class OrderFragment extends Fragment {
                 String status = order.getStatusPesanan();
 
                 if (filterType.equals("ACTIVE")) {
+                    // Pending atau Confirmed
                     if (status.equals(Constants.ORDER_STATUS_PENDING) ||
-                            status.equals(Constants.ORDER_STATUS_CONFIRMED)) {
+                            status.equals(Constants.ORDER_STATUS_CONFIRMED)
+                            ) {
+                        displayedList.add(order);
+                    }
+                } else if (filterType.equals("UNREVIEWED")) {
+                    // [LOGIKA BARU] Completed = Selesai kerjaan tapi belum direview
+                    if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
                         displayedList.add(order);
                     }
                 } else if (filterType.equals("COMPLETED")) {
-                    if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
+                    // [LOGIKA UPDATE] Reviewed = Selesai Final (sudah direview)
+                    // Jika Anda ingin tab "Selesai" juga menampilkan yg belum direview, tambahkan OR ORDER_STATUS_COMPLETED
+                    if (status.equals(Constants.ORDER_STATUS_REVIEWED)) {
                         displayedList.add(order);
                     }
                 } else if (filterType.equals("CANCELLED")) {
@@ -218,6 +225,7 @@ public class OrderFragment extends Fragment {
     private void updateFilterUI(String activeFilter) {
         resetChip(filterAll);
         resetChip(filterActive);
+        resetChip(filterUnreviewed); // Reset tombol baru
         resetChip(filterCompleted);
         resetChip(filterCancelled);
 
@@ -225,6 +233,7 @@ public class OrderFragment extends Fragment {
         switch (activeFilter) {
             case "ALL": target = filterAll; break;
             case "ACTIVE": target = filterActive; break;
+            case "UNREVIEWED": target = filterUnreviewed; break;
             case "COMPLETED": target = filterCompleted; break;
             case "CANCELLED": target = filterCancelled; break;
         }

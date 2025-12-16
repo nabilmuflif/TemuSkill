@@ -11,6 +11,7 @@ public class Constants {
     public static final String ORDER_STATUS_COMPLETED = "completed"; // Masalah utama biasanya disini (jika typo)
     public static final String ORDER_STATUS_CANCELLED = "cancelled";
     public static final String ORDER_STATUS_REVIEWED = "reviewed";
+    public static final String ORDER_STATUS_IN_PROGRESS = "in progress";
     // Verification Status
     public static final String VERIFICATION_PENDING = "pending";
     public static final String VERIFICATION_VERIFIED = "verified";

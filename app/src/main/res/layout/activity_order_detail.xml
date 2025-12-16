@@ -272,22 +272,6 @@
             android:layout_marginBottom="12dp">
 
             <Button
-                android:id="@+id/btn_call_driver"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="Hubungi"
-                android:textColor="@color/primary_blue"
-                android:backgroundTint="@color/white"
-                app:strokeColor="@color/primary_blue"
-                app:strokeWidth="1dp"
-                app:cornerRadius="8dp"
-                android:fontFamily="@font/poppins_medium"
-                android:textAllCaps="false"
-                android:layout_marginEnd="8dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
-            <Button
                 android:id="@+id/btn_chat_driver"
                 android:layout_width="0dp"
                 android:layout_height="50dp"

@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.temuskill.R;
 import com.example.temuskill.models.ChatPreview;
-import com.example.temuskill.models.User; // Pastikan import ini benar
+import com.example.temuskill.models.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
@@ -43,12 +43,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatPreview chat = chatList.get(position);
 
-        // 1. Set data default/sementara
+        // 1. Set data sementara (placeholder)
         holder.tvName.setText("Memuat...");
         holder.tvMessage.setText(chat.getLastMessage());
         holder.tvTime.setText(chat.getTime());
 
-        // 2. AMBIL DATA NAMA & FOTO ASLI (Kunci Perbaikan Ada di Sini)
+        // 2. Ambil data Nama & Foto Asli dari Firestore
         loadPartnerInfo(chat.getPartnerId(), holder.tvName, holder.ivProfile);
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(chat));
@@ -60,38 +60,41 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        // --- PERBAIKAN UTAMA: AMBIL SESUAI FIELD DATABASE ---
+                        // --- PERBAIKAN: Gunakan toObject(User.class) ---
+                        // Ini akan otomatis membaca anotasi @PropertyName di User.java
+                        User partner = doc.toObject(User.class);
 
-                        // Ambil field "nama_lengkap" (Sesuai screenshot database kamu)
-                        String realName = doc.getString("nama_lengkap");
-
-                        // Jika masih null, coba field lain jaga-jaga
-                        if (realName == null) realName = doc.getString("name");
-
-                        // Set Text Nama
-                        if (realName != null && !realName.isEmpty()) {
-                            tvName.setText(realName);
-                        } else {
-                            tvName.setText("Tanpa Nama");
-                        }
-
-                        // --- AMBIL FOTO (Sesuai User.java kamu fieldnya "foto_profil") ---
-                        String photoUrl = doc.getString("foto_profil");
-
-                        if (photoUrl != null) {
-                            if (photoUrl.startsWith("http")) {
-                                // Load dari Internet (Firebase Storage)
-                                Glide.with(context)
-                                        .load(photoUrl)
-                                        .placeholder(R.drawable.profile)
-                                        .circleCrop()
-                                        .into(imageView);
+                        if (partner != null) {
+                            // 1. Ambil Nama (Otomatis membaca field "nama_lengkap")
+                            String realName = partner.getNamaLengkap();
+                            if (realName != null && !realName.isEmpty()) {
+                                tvName.setText(realName);
                             } else {
-                                // Load dari Drawable (Dummy/Lokal)
-                                int resId = context.getResources().getIdentifier(photoUrl, "drawable", context.getPackageName());
-                                if (resId != 0) {
-                                    Glide.with(context).load(resId).circleCrop().into(imageView);
+                                tvName.setText("Tanpa Nama");
+                            }
+
+                            // 2. Ambil Foto (Otomatis membaca field "foto_profil")
+                            String photoUrl = partner.getFotoProfilUrl();
+                            if (photoUrl != null && !photoUrl.isEmpty()) {
+                                if (photoUrl.startsWith("http")) {
+                                    // Load URL Internet
+                                    Glide.with(context)
+                                            .load(photoUrl)
+                                            .placeholder(R.drawable.profile)
+                                            .circleCrop()
+                                            .into(imageView);
+                                } else {
+                                    // Load Resource Lokal (Dummy)
+                                    int resId = context.getResources().getIdentifier(photoUrl, "drawable", context.getPackageName());
+                                    if (resId != 0) {
+                                        Glide.with(context).load(resId).circleCrop().into(imageView);
+                                    } else {
+                                        imageView.setImageResource(R.drawable.profile);
+                                    }
                                 }
+                            } else {
+                                // Jika tidak ada URL foto
+                                imageView.setImageResource(R.drawable.profile);
                             }
                         }
                     } else {

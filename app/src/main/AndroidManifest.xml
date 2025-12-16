@@ -47,6 +47,7 @@
         <activity android:name=".activities.MyReviewsActivity" />
         <activity android:name=".activities.VerificationActivity" />
         <activity android:name=".activities.AdminDashboardActivity" />
+        <activity android:name=".activities.AddCategoryAdminActivity" />
         <activity android:name=".activities.TalentDetailActivity" />
         <activity android:name=".activities.UserDetailActivity" />
 

@@ -19,6 +19,7 @@ import com.example.temuskill.R;
 import com.example.temuskill.adapters.MessageAdapter;
 import com.example.temuskill.models.Message;
 import com.example.temuskill.models.Order;
+import com.example.temuskill.models.User;
 import com.example.temuskill.utils.SessionManager;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,17 +42,31 @@ public class ChatFragment extends Fragment {
     private String orderId;
     private String myUid;
     private String receiverId;
+    private String receiverName; // Tambahan untuk optimasi judul
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            orderId = getArguments().getString("ORDER_ID");
-        }
         db = FirebaseFirestore.getInstance();
         sessionManager = new SessionManager(getContext());
         myUid = sessionManager.getUserId();
         messageList = new ArrayList<>();
+
+        // === 1. TANGKAP DATA DARI ACTIVITY (MainActivity) ===
+        if (getArguments() != null) {
+            orderId = getArguments().getString("ORDER_ID");
+
+            // Coba ambil ID mitra langsung (Biar nama & foto cepat muncul)
+            receiverId = getArguments().getString("TARGET_USER_ID");
+
+            // Coba ambil Nama mitra langsung
+            receiverName = getArguments().getString("TARGET_USER_NAME");
+
+            // Jaga-jaga jika key yang dikirim berbeda (misal dari ChatListFragment)
+            if (receiverId == null) {
+                receiverId = getArguments().getString("PARTNER_ID");
+            }
+        }
     }
 
     @Nullable
@@ -64,14 +79,33 @@ public class ChatFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
+
+        // Setup Tombol
+        btnSend.setOnClickListener(v -> sendMessage());
+        btnBack.setOnClickListener(v -> {
+            // Cek apakah bisa kembali (pop) atau harus menutup activity
+            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                getParentFragmentManager().popBackStack();
+            } else {
+                requireActivity().getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
         setupRecyclerView();
 
-        btnSend.setOnClickListener(v -> sendMessage());
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        // === LOGIKA UTAMA LOAD DATA ===
+        // Skenario A: Data Mitra sudah dikirim (Instan)
+        if (receiverId != null) {
+            fetchPartnerProfile(receiverId);
+            if (receiverName != null) {
+                tvTitle.setText(receiverName);
+            }
+        } else {
+            // Skenario B: Data Mitra belum ada, cari lewat Order ID (Sedikit loading)
+            fetchOrderAndPartnerInfo();
+        }
 
-        // 1. Fetch Order Data to determine the partner
-        fetchOrderAndPartnerInfo();
-        // 2. Start listening for incoming messages
+        // Mulai dengarkan pesan masuk
         listenForMessages();
     }
 
@@ -86,18 +120,19 @@ public class ChatFragment extends Fragment {
 
     private void fetchOrderAndPartnerInfo() {
         if (orderId == null) return;
+
         db.collection("orders").document(orderId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Order order = documentSnapshot.toObject(Order.class);
                         if (order != null) {
-                            // Determine Chat Partner
+                            // Tentukan siapa lawan bicara kita
                             if (myUid.equals(order.getClientId())) {
                                 receiverId = order.getProviderId();
                             } else {
                                 receiverId = order.getClientId();
                             }
-                            // Fetch Partner Profile (Name & Photo)
+                            // Load profilnya
                             fetchPartnerProfile(receiverId);
                         }
                     }
@@ -110,47 +145,43 @@ public class ChatFragment extends Fragment {
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists() && isAdded()) {
-                        // 1. GET NAME
-                        String name = doc.getString("nama_lengkap");
-                        // Set Name to Title
-                        if (name != null && !name.isEmpty()) {
-                            tvTitle.setText(name);
-                        } else {
-                            tvTitle.setText("User"); // Fallback
-                        }
+                        // Gunakan mapping User.class agar aman sesuai field Firestore
+                        User user = doc.toObject(User.class);
 
-                        // 2. GET PHOTO
-                        String photoUrl = doc.getString("foto_profil");
-
-                        // === LOGIC: LOAD PROFILE PHOTO (Support Dummy & URL) ===
-                        if (photoUrl != null && !photoUrl.isEmpty()) {
-                            // Check if URL (Internet) or URI (Android Resource)
-                            if (photoUrl.startsWith("http") || photoUrl.startsWith("android.resource")) {
-                                Glide.with(this)
-                                        .load(photoUrl)
-                                        .placeholder(R.drawable.profile)
-                                        .circleCrop()
-                                        .into(ivHeaderAvatar);
+                        if (user != null) {
+                            // 1. Set Nama
+                            String name = user.getNamaLengkap();
+                            if (name != null && !name.isEmpty()) {
+                                tvTitle.setText(name);
                             } else {
-                                // If not URL, assume it's a Drawable Resource Name (Dummy Data)
-                                int resId = getResources().getIdentifier(photoUrl, "drawable", requireContext().getPackageName());
-                                if (resId != 0) {
-                                    Glide.with(this)
-                                            .load(resId)
-                                            .placeholder(R.drawable.profile)
+                                tvTitle.setText("User");
+                            }
+
+                            // 2. Set Foto Profil Header
+                            String photoUrl = user.getFotoProfilUrl();
+                            if (photoUrl != null && !photoUrl.isEmpty()) {
+                                if (photoUrl.startsWith("http")) {
+                                    Glide.with(this).load(photoUrl)
                                             .circleCrop()
+                                            .placeholder(R.drawable.profile)
                                             .into(ivHeaderAvatar);
                                 } else {
-                                    ivHeaderAvatar.setImageResource(R.drawable.profile);
+                                    int resId = getResources().getIdentifier(photoUrl, "drawable", requireContext().getPackageName());
+                                    if (resId != 0) {
+                                        Glide.with(this).load(resId).circleCrop().into(ivHeaderAvatar);
+                                    } else {
+                                        ivHeaderAvatar.setImageResource(R.drawable.profile);
+                                    }
                                 }
+                            } else {
+                                ivHeaderAvatar.setImageResource(R.drawable.profile);
                             }
-                        } else {
-                            ivHeaderAvatar.setImageResource(R.drawable.profile);
-                        }
 
-                        // Pass partner's photo to adapter so it appears in left chat bubbles
-                        if (messageAdapter != null) {
-                            messageAdapter.setPartnerPhotoUrl(photoUrl);
+                            // 3. Update Foto di Bubble Chat Adapter (Penting!)
+                            if (messageAdapter != null) {
+                                messageAdapter.setPartnerPhotoUrl(photoUrl);
+                                messageAdapter.notifyDataSetChanged();
+                            }
                         }
                     }
                 });
@@ -159,13 +190,16 @@ public class ChatFragment extends Fragment {
     private void setupRecyclerView() {
         messageAdapter = new MessageAdapter(getContext(), messageList, myUid);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true); // Auto-scroll to bottom
+        layoutManager.setStackFromEnd(true); // Pesan terbaru di bawah
         rvMessages.setLayoutManager(layoutManager);
         rvMessages.setAdapter(messageAdapter);
     }
 
     private void listenForMessages() {
-        if (orderId == null) return;
+        if (orderId == null) {
+            return; // Tidak bisa load pesan kalau tidak ada Order ID
+        }
+
         db.collection("orders").document(orderId).collection("messages")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
@@ -176,7 +210,10 @@ public class ChatFragment extends Fragment {
                         if (dc.getType() == DocumentChange.Type.ADDED) {
                             Message msg = dc.getDocument().toObject(Message.class);
                             messageList.add(msg);
+
+                            // Notifikasi adapter ada item baru di posisi terakhir
                             messageAdapter.notifyItemInserted(messageList.size() - 1);
+                            // Scroll otomatis ke bawah
                             rvMessages.smoothScrollToPosition(messageList.size() - 1);
                         }
                     }
@@ -187,19 +224,25 @@ public class ChatFragment extends Fragment {
         String text = etMessage.getText().toString().trim();
         if (text.isEmpty()) return;
 
+        // Validasi data
         if (orderId == null || receiverId == null) {
-            Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Sedang memuat data...", Toast.LENGTH_SHORT).show();
+            // Coba panggil ulang data jika masih null
+            if (orderId != null && receiverId == null) fetchOrderAndPartnerInfo();
             return;
         }
 
+        // Buat objek pesan
         Message message = new Message(myUid, receiverId, text);
+
+        // Bersihkan input segera agar terasa responsif
+        etMessage.setText("");
+
+        // Kirim ke Firestore
         db.collection("orders").document(orderId).collection("messages")
                 .add(message)
-                .addOnSuccessListener(documentReference -> {
-                    etMessage.setText("");
-                })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to send", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Gagal mengirim pesan", Toast.LENGTH_SHORT).show();
                 });
     }
 }
