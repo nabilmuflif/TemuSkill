@@ -23,7 +23,9 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView tvPickupAddress, tvDriverName, tvDriverRating, tvPlateNumber, tvPaymentMethod, tvTotalPrice;
     private CircleImageView ivDriverPhoto;
     private ImageView ivHeaderGallery;
-    private Button btnCall, btnChat, btnCancelOrder;
+
+    // 1. REVISI: 'btnCall' dihapus karena unused
+    private Button btnChat, btnCancelOrder;
 
     private FirebaseFirestore db;
     private String orderId;
@@ -54,7 +56,8 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         ivDriverPhoto = findViewById(R.id.iv_driver_photo);
         ivHeaderGallery = findViewById(R.id.iv_header_gallery);
-        
+
+        // btnCall = findViewById(R.id.btn_call_driver); // Dihapus
         btnChat = findViewById(R.id.btn_chat_driver);
         btnCancelOrder = findViewById(R.id.btn_cancel_order_final);
 
@@ -62,28 +65,19 @@ public class OrderDetailActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // 1. Batalkan Pesanan
         btnCancelOrder.setOnClickListener(v -> {
             Intent intent = new Intent(this, CancelOrderActivity.class);
             intent.putExtra("ORDER_ID", orderId);
             startActivity(intent);
         });
 
-        // 2. Chat Mitra (REVISI PENTING: Kirim ORDER_ID ke MainActivity)
         btnChat.setOnClickListener(v -> {
             if (currentOrder != null && currentOrder.getProviderId() != null) {
                 Intent intent = new Intent(this, MainActivity.class);
-
-                // Beri sinyal ke MainActivity
                 intent.putExtra("NAVIGATE_TO", "CHAT_FRAGMENT");
-
-                // KIRIM ORDER ID AGAR CHAT BISA LOAD PESAN
                 intent.putExtra("ORDER_ID", orderId);
-
-                // Kirim Data Mitra (agar Header Nama & Foto instan muncul)
                 intent.putExtra("TARGET_USER_ID", currentOrder.getProviderId());
                 intent.putExtra("TARGET_USER_NAME", currentOrder.getProviderName());
-
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             } else {
@@ -91,7 +85,6 @@ public class OrderDetailActivity extends AppCompatActivity {
             }
         });
 
-        // 3. Lihat Profil Mitra
         View.OnClickListener profileListener = v -> {
             if(currentOrder != null) {
                 Intent intent = new Intent(this, TalentDetailActivity.class);
@@ -122,7 +115,6 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvPlateNumber.setText(currentOrder.getServiceName());
         tvTotalPrice.setText(PriceFormatter.formatPrice(currentOrder.getTotalBiaya()));
         tvPaymentMethod.setText("Tunai");
-
         loadProviderInfo(currentOrder.getProviderId());
     }
 
@@ -136,6 +128,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                         if (photoUrl.startsWith("http") || photoUrl.startsWith("android.resource")) {
                             Glide.with(this).load(photoUrl).placeholder(R.drawable.profile).into(ivDriverPhoto);
                         } else {
+                            @SuppressWarnings("DiscouragedApi")
                             int resId = getResources().getIdentifier(photoUrl, "drawable", getPackageName());
                             if (resId != 0) Glide.with(this).load(resId).placeholder(R.drawable.profile).into(ivDriverPhoto);
                             else ivDriverPhoto.setImageResource(R.drawable.profile);
@@ -149,6 +142,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                         Glide.with(this).load(galeri.get(0)).centerCrop().placeholder(R.color.grey_bg).into(ivHeaderGallery);
                     } else {
                         if (photoUrl != null && !photoUrl.isEmpty() && !photoUrl.startsWith("http")) {
+                            @SuppressWarnings("DiscouragedApi")
                             int resId = getResources().getIdentifier(photoUrl, "drawable", getPackageName());
                             if(resId != 0) Glide.with(this).load(resId).centerCrop().into(ivHeaderGallery);
                         } else {
@@ -164,14 +158,12 @@ public class OrderDetailActivity extends AppCompatActivity {
     private void setupButtonVisibility() {
         String status = currentOrder.getStatusPesanan();
 
-        // 1. Tombol Batalkan (Pending/Confirmed -> Muncul)
         if (Constants.ORDER_STATUS_PENDING.equals(status) || Constants.ORDER_STATUS_CONFIRMED.equals(status)) {
             btnCancelOrder.setVisibility(View.VISIBLE);
         } else {
             btnCancelOrder.setVisibility(View.GONE);
         }
 
-        // 2. Tombol Chat (Selesai/Dibatalkan -> Nonaktif & Ganti Teks)
         if (Constants.ORDER_STATUS_COMPLETED.equals(status) || Constants.ORDER_STATUS_REVIEWED.equals(status)) {
             btnChat.setText("Pesanan Telah Selesai");
             btnChat.setEnabled(false);

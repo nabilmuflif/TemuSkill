@@ -18,9 +18,10 @@ import java.util.List;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
 
-    private Context context;
-    private List<ChatPreview> chatList;
-    private OnItemClickListener listener;
+    // 1. Tambahkan 'final' karena nilainya tidak pernah berubah setelah konstruktor
+    private final Context context;
+    private final List<ChatPreview> chatList;
+    private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(ChatPreview chat);
@@ -43,12 +44,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatPreview chat = chatList.get(position);
 
-        // 1. Set data sementara (placeholder)
         holder.tvName.setText("Memuat...");
         holder.tvMessage.setText(chat.getLastMessage());
         holder.tvTime.setText(chat.getTime());
 
-        // 2. Ambil data Nama & Foto Asli dari Firestore
         loadPartnerInfo(chat.getPartnerId(), holder.tvName, holder.ivProfile);
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(chat));
@@ -60,31 +59,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        // --- PERBAIKAN: Gunakan toObject(User.class) ---
-                        // Ini akan otomatis membaca anotasi @PropertyName di User.java
                         User partner = doc.toObject(User.class);
-
                         if (partner != null) {
-                            // 1. Ambil Nama (Otomatis membaca field "nama_lengkap")
                             String realName = partner.getNamaLengkap();
-                            if (realName != null && !realName.isEmpty()) {
-                                tvName.setText(realName);
-                            } else {
-                                tvName.setText("Tanpa Nama");
-                            }
+                            tvName.setText((realName != null && !realName.isEmpty()) ? realName : "Tanpa Nama");
 
-                            // 2. Ambil Foto (Otomatis membaca field "foto_profil")
                             String photoUrl = partner.getFotoProfilUrl();
                             if (photoUrl != null && !photoUrl.isEmpty()) {
                                 if (photoUrl.startsWith("http")) {
-                                    // Load URL Internet
-                                    Glide.with(context)
-                                            .load(photoUrl)
-                                            .placeholder(R.drawable.profile)
-                                            .circleCrop()
-                                            .into(imageView);
+                                    Glide.with(context).load(photoUrl).placeholder(R.drawable.profile).circleCrop().into(imageView);
                                 } else {
-                                    // Load Resource Lokal (Dummy)
+                                    // Suppress warning untuk getIdentifier
+                                    @SuppressWarnings("DiscouragedApi")
                                     int resId = context.getResources().getIdentifier(photoUrl, "drawable", context.getPackageName());
                                     if (resId != 0) {
                                         Glide.with(context).load(resId).circleCrop().into(imageView);
@@ -93,7 +79,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                                     }
                                 }
                             } else {
-                                // Jika tidak ada URL foto
                                 imageView.setImageResource(R.drawable.profile);
                             }
                         }

@@ -38,19 +38,17 @@ public class OrderFragment extends Fragment {
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private CircleImageView ivProfileHeader;
-
-    // Filter Chips
     private TextView filterAll, filterActive, filterUnreviewed, filterCompleted, filterCancelled;
 
     private OrderAdapter adapter;
     private FirebaseFirestore db;
     private SessionManager sessionManager;
     private ListenerRegistration firestoreListener;
-
     private ActivityResultLauncher<Intent> rateOrderLauncher;
 
-    private List<Order> allOrderList = new ArrayList<>();
-    private List<Order> displayedList = new ArrayList<>();
+    // 1. Tambahkan 'final'
+    private final List<Order> allOrderList = new ArrayList<>();
+    private final List<Order> displayedList = new ArrayList<>();
 
     private String currentFilter = "ALL";
 
@@ -62,7 +60,6 @@ public class OrderFragment extends Fragment {
         sessionManager = new SessionManager(getContext());
 
         setupActivityResultLauncher();
-
         initViews(view);
         setupAdapter();
         setupFilterListeners();
@@ -75,15 +72,10 @@ public class OrderFragment extends Fragment {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (firestoreListener != null) {
-                            firestoreListener.remove();
-                        }
+                        if (firestoreListener != null) firestoreListener.remove();
                         allOrderList.clear();
                         displayedList.clear();
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            startRealtimeUpdates();
-                        }, 500);
+                        new Handler(Looper.getMainLooper()).postDelayed(this::startRealtimeUpdates, 500);
                     }
                 }
         );
@@ -99,9 +91,7 @@ public class OrderFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (firestoreListener != null) {
-            firestoreListener.remove();
-        }
+        if (firestoreListener != null) firestoreListener.remove();
     }
 
     private void initViews(View view) {
@@ -110,10 +100,9 @@ public class OrderFragment extends Fragment {
         tvEmpty = view.findViewById(R.id.tv_empty);
         ivProfileHeader = view.findViewById(R.id.iv_profile_header);
 
-        // Filter Chips
         filterAll = view.findViewById(R.id.filter_all);
         filterActive = view.findViewById(R.id.filter_active);
-        filterUnreviewed = view.findViewById(R.id.filter_unreviewed); // Inisialisasi Tombol Baru
+        filterUnreviewed = view.findViewById(R.id.filter_unreviewed);
         filterCompleted = view.findViewById(R.id.filter_completed);
         filterCancelled = view.findViewById(R.id.filter_cancelled);
 
@@ -121,14 +110,17 @@ public class OrderFragment extends Fragment {
     }
 
     private void setupAdapter() {
-        adapter = new OrderAdapter(displayedList, getContext(), sessionManager.isPenyediaJasa(), rateOrderLauncher);
-        rvOrders.setAdapter(adapter);
+        // 2. Gunakan requireContext() untuk keamanan null safety
+        if (getContext() != null) {
+            adapter = new OrderAdapter(displayedList, requireContext(), sessionManager.isPenyediaJasa(), rateOrderLauncher);
+            rvOrders.setAdapter(adapter);
+        }
     }
 
     private void setupFilterListeners() {
         filterAll.setOnClickListener(v -> applyFilter("ALL"));
         filterActive.setOnClickListener(v -> applyFilter("ACTIVE"));
-        filterUnreviewed.setOnClickListener(v -> applyFilter("UNREVIEWED")); // Listener Baru
+        filterUnreviewed.setOnClickListener(v -> applyFilter("UNREVIEWED"));
         filterCompleted.setOnClickListener(v -> applyFilter("COMPLETED"));
         filterCancelled.setOnClickListener(v -> applyFilter("CANCELLED"));
     }
@@ -145,19 +137,15 @@ public class OrderFragment extends Fragment {
                 .whereEqualTo(searchField, myUid)
                 .orderBy("createdAt", Query.Direction.DESCENDING);
 
-        if (firestoreListener != null) {
-            firestoreListener.remove();
-        }
+        if (firestoreListener != null) firestoreListener.remove();
 
         firestoreListener = query.addSnapshotListener((value, error) -> {
             if (!isAdded()) return;
             if (progressBar != null) progressBar.setVisibility(View.GONE);
-
             if (error != null) return;
 
             if (value != null) {
                 allOrderList.clear();
-
                 for (QueryDocumentSnapshot doc : value) {
                     try {
                         Order order = doc.toObject(Order.class);
@@ -167,7 +155,6 @@ public class OrderFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
-
                 applyFilter(currentFilter);
             }
         });
@@ -184,34 +171,35 @@ public class OrderFragment extends Fragment {
         } else {
             for (Order order : allOrderList) {
                 String status = order.getStatusPesanan();
-
-                if (filterType.equals("ACTIVE")) {
-                    // Pending atau Confirmed
-                    if (status.equals(Constants.ORDER_STATUS_PENDING) ||
-                            status.equals(Constants.ORDER_STATUS_CONFIRMED)
-                            ) {
-                        displayedList.add(order);
-                    }
-                } else if (filterType.equals("UNREVIEWED")) {
-                    // [LOGIKA BARU] Completed = Selesai kerjaan tapi belum direview
-                    if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
-                        displayedList.add(order);
-                    }
-                } else if (filterType.equals("COMPLETED")) {
-                    // [LOGIKA UPDATE] Reviewed = Selesai Final (sudah direview)
-                    // Jika Anda ingin tab "Selesai" juga menampilkan yg belum direview, tambahkan OR ORDER_STATUS_COMPLETED
-                    if (status.equals(Constants.ORDER_STATUS_REVIEWED)) {
-                        displayedList.add(order);
-                    }
-                } else if (filterType.equals("CANCELLED")) {
-                    if (status.equals(Constants.ORDER_STATUS_CANCELLED)) {
-                        displayedList.add(order);
-                    }
+                // 3. Switch statement untuk logika filter yang lebih rapi (optional, tapi membersihkan warning if-else chain)
+                switch (filterType) {
+                    case "ACTIVE":
+                        if (status.equals(Constants.ORDER_STATUS_PENDING) ||
+                                status.equals(Constants.ORDER_STATUS_CONFIRMED) ||
+                                status.equals(Constants.ORDER_STATUS_IN_PROGRESS)) {
+                            displayedList.add(order);
+                        }
+                        break;
+                    case "UNREVIEWED":
+                        if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
+                            displayedList.add(order);
+                        }
+                        break;
+                    case "COMPLETED":
+                        if (status.equals(Constants.ORDER_STATUS_REVIEWED)) {
+                            displayedList.add(order);
+                        }
+                        break;
+                    case "CANCELLED":
+                        if (status.equals(Constants.ORDER_STATUS_CANCELLED)) {
+                            displayedList.add(order);
+                        }
+                        break;
                 }
             }
         }
 
-        adapter.notifyDataSetChanged();
+        if (adapter != null) adapter.notifyDataSetChanged();
 
         if (displayedList.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
@@ -225,7 +213,7 @@ public class OrderFragment extends Fragment {
     private void updateFilterUI(String activeFilter) {
         resetChip(filterAll);
         resetChip(filterActive);
-        resetChip(filterUnreviewed); // Reset tombol baru
+        resetChip(filterUnreviewed);
         resetChip(filterCompleted);
         resetChip(filterCancelled);
 
@@ -259,6 +247,8 @@ public class OrderFragment extends Fragment {
                         if(url.startsWith("http")) {
                             Glide.with(this).load(url).placeholder(R.drawable.profile).into(ivProfileHeader);
                         } else {
+                            // 4. Suppress Warning DiscouragedApi
+                            @SuppressWarnings("DiscouragedApi")
                             int resId = getResources().getIdentifier(url, "drawable", requireContext().getPackageName());
                             if(resId != 0) Glide.with(this).load(resId).into(ivProfileHeader);
                         }
