@@ -13,6 +13,7 @@ import com.example.temuskill.R;
 import com.example.temuskill.models.Order;
 import com.example.temuskill.models.User;
 import com.example.temuskill.utils.Constants;
+import com.example.temuskill.utils.NotificationUtils;
 import com.example.temuskill.utils.PriceFormatter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -63,7 +64,7 @@ public class ProviderOrderDetailActivity extends AppCompatActivity {
                         currentOrder = documentSnapshot.toObject(Order.class);
                         if (currentOrder != null) {
                             displayData();
-                            setupButtons();
+                            setupButtons(); // Update tampilan tombol
                         }
                     }
                 });
@@ -73,12 +74,9 @@ public class ProviderOrderDetailActivity extends AppCompatActivity {
         tvServiceName.setText(currentOrder.getServiceName());
         tvOrderDate.setText(currentOrder.getJadwalKerja());
         tvTotalIncome.setText(PriceFormatter.formatPrice(currentOrder.getTotalBiaya()));
-
-        // Address and Notes (Check if fields exist in your Order model, otherwise use placeholder)
         tvOrderAddress.setText("Lokasi Pelanggan (Lihat Peta)");
         tvOrderNotes.setText(currentOrder.getCatatan() != null ? currentOrder.getCatatan() : "-");
 
-        // Load Client Info
         loadClientInfo(currentOrder.getClientId());
     }
 
@@ -101,52 +99,75 @@ public class ProviderOrderDetailActivity extends AppCompatActivity {
         });
     }
 
+    // --- BAGIAN UTAMA YANG DIPERBAIKI ---
     private void setupButtons() {
         String status = currentOrder.getStatusPesanan();
+        if (status == null) status = "";
 
-        btnSecondaryAction.setVisibility(View.GONE); // Default hide secondary
+        // Default: Sembunyikan tombol tolak
+        btnSecondaryAction.setVisibility(View.GONE);
+        btnMainAction.setEnabled(true);
 
-        switch (status) {
-            case Constants.ORDER_STATUS_PENDING:
-                btnMainAction.setText("Terima Pesanan");
-                btnMainAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_CONFIRMED));
+        // LOGIKA TOMBOL BERDASARKAN STATUS
+        if (status.equals(Constants.ORDER_STATUS_PENDING)) {
+            // Status: Pending -> Tombol "Terima" & "Tolak"
+            btnMainAction.setText("Terima Pesanan");
+            btnMainAction.setBackgroundColor(getColor(R.color.primary_blue)); // Warna Biru
+            btnMainAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_CONFIRMED));
 
-                btnSecondaryAction.setVisibility(View.VISIBLE);
-                btnSecondaryAction.setText("Tolak Pesanan");
-                btnSecondaryAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_CANCELLED));
-                break;
+            btnSecondaryAction.setVisibility(View.VISIBLE);
+            btnSecondaryAction.setText("Tolak Pesanan");
+            btnSecondaryAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_CANCELLED));
 
-            case Constants.ORDER_STATUS_CONFIRMED:
-                btnMainAction.setText("Selesaikan Pekerjaan");
-                btnMainAction.setBackgroundColor(getColor(R.color.green_success));
-                btnMainAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_COMPLETED));
-                break;
+        } else if (status.equals(Constants.ORDER_STATUS_CONFIRMED)) {
+            // Status: Confirmed -> Tombol "Selesaikan Pekerjaan"
+            btnMainAction.setText("Selesaikan Pekerjaan");
+            btnMainAction.setBackgroundColor(getColor(R.color.green_success)); // Warna Hijau
+            btnMainAction.setOnClickListener(v -> updateStatus(Constants.ORDER_STATUS_COMPLETED));
 
-            case Constants.ORDER_STATUS_COMPLETED:
-                btnMainAction.setText("Pesanan Selesai");
-                btnMainAction.setEnabled(false);
-                btnMainAction.setBackgroundColor(getColor(android.R.color.darker_gray));
-                break;
+        } else if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
+            // Status: Completed -> Tombol "Pesanan Selesai" (Mati)
+            btnMainAction.setText("Pesanan Selesai");
+            btnMainAction.setEnabled(false);
+            btnMainAction.setBackgroundColor(getColor(android.R.color.darker_gray)); // Warna Abu-abu
 
-            case Constants.ORDER_STATUS_CANCELLED:
-                btnMainAction.setText("Pesanan Dibatalkan");
-                btnMainAction.setEnabled(false);
-                btnMainAction.setBackgroundColor(getColor(R.color.red_error));
-                break;
+        } else if (status.equals(Constants.ORDER_STATUS_CANCELLED)) {
+            // Status: Cancelled -> Tombol "Dibatalkan"
+            btnMainAction.setText("Pesanan Dibatalkan");
+            btnMainAction.setEnabled(false);
+            btnMainAction.setBackgroundColor(getColor(R.color.red_error)); // Warna Merah
+        } else {
+            // Fallback jika status tidak dikenali
+            btnMainAction.setText("Status: " + status);
         }
 
-        // Chat Button Listener
         btnChatClient.setOnClickListener(v -> {
-            Toast.makeText(this, "Membuka Chat...", Toast.LENGTH_SHORT).show();
-            // Implement chat navigation here
+            Toast.makeText(this, "Fitur Chat segera hadir...", Toast.LENGTH_SHORT).show();
         });
     }
 
     private void updateStatus(String newStatus) {
         db.collection("orders").document(orderId).update("statusPesanan", newStatus)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Status Diperbarui", Toast.LENGTH_SHORT).show();
-                    loadOrderData(); // Refresh UI
+                    Toast.makeText(this, "Status Berhasil Diperbarui!", Toast.LENGTH_SHORT).show();
+
+                    // Kirim Notifikasi ke Client
+                    if (currentOrder != null) {
+                        String clientId = currentOrder.getClientId();
+                        String title = "Update Pesanan 📦";
+                        String msg = "Status pesanan jasa Anda kini: " + getStatusLabel(newStatus);
+                        NotificationUtils.sendNotification(clientId, title, msg);
+                    }
+
+                    // Refresh halaman agar tombol berubah otomatis
+                    loadOrderData();
                 });
+    }
+
+    private String getStatusLabel(String status) {
+        if (status.equals(Constants.ORDER_STATUS_CONFIRMED)) return "Diterima & Sedang Dikerjakan";
+        if (status.equals(Constants.ORDER_STATUS_COMPLETED)) return "Selesai";
+        if (status.equals(Constants.ORDER_STATUS_CANCELLED)) return "Dibatalkan";
+        return status;
     }
 }

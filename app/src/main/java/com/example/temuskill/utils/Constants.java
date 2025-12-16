@@ -8,16 +8,9 @@ public class Constants {
     // Order Status
     public static final String ORDER_STATUS_PENDING = "pending";
     public static final String ORDER_STATUS_CONFIRMED = "confirmed";
-    public static final String ORDER_STATUS_IN_PROGRESS = "in_progress";
-
-    // [LOGIKA BARU]
-    // 1. completed = Pekerjaan selesai, tapi belum direview
-    public static final String ORDER_STATUS_COMPLETED = "completed";
-    // 2. reviewed = Pekerjaan selesai DAN sudah direview (Final)
-    public static final String ORDER_STATUS_REVIEWED = "reviewed";
-
+    public static final String ORDER_STATUS_COMPLETED = "completed"; // Masalah utama biasanya disini (jika typo)
     public static final String ORDER_STATUS_CANCELLED = "cancelled";
-
+    public static final String ORDER_STATUS_REVIEWED = "reviewed";
     // Verification Status
     public static final String VERIFICATION_PENDING = "pending";
     public static final String VERIFICATION_VERIFIED = "verified";

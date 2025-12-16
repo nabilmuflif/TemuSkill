@@ -1,10 +1,8 @@
 package com.example.temuskill.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,18 +11,16 @@ import com.example.temuskill.R;
 import com.example.temuskill.models.Order;
 import com.example.temuskill.models.User;
 import com.example.temuskill.utils.Constants;
+import com.example.temuskill.utils.NotificationUtils; // PENTING
 import com.example.temuskill.utils.PriceFormatter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import de.hdodenhof.circleimageview.CircleImageView;
-import java.util.List;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
-    // UI Components
-    private TextView tvPickupAddress, tvDriverName, tvDriverRating, tvPlateNumber, tvPaymentMethod, tvTotalPrice;
-    private CircleImageView ivDriverPhoto;
-    private ImageView ivHeaderGallery; // Variabel untuk Gambar Header
-    private Button btnCall, btnChat, btnCancelOrder;
+    private TextView tvProviderName, tvServiceName, tvOrderDate, tvOrderAddress, tvTotalIncome;
+    private CircleImageView ivProviderPhoto;
+    private Button btnCancelOrder, btnRateOrder; // Tambahkan btnCancelOrder
 
     private FirebaseFirestore db;
     private String orderId;
@@ -41,55 +37,24 @@ public class OrderDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         initViews();
-        setupListeners();
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         loadOrderData();
     }
 
     private void initViews() {
-        // Text Views
-        tvPickupAddress = findViewById(R.id.tv_pickup_address);
-        tvDriverName = findViewById(R.id.tv_driver_name);
-        tvDriverRating = findViewById(R.id.tv_driver_rating);
-        tvPlateNumber = findViewById(R.id.tv_plate_number);
-        tvPaymentMethod = findViewById(R.id.tv_payment_method);
-        tvTotalPrice = findViewById(R.id.tv_total_price);
+        // Pastikan ID di XML sesuai
+        tvProviderName = findViewById(R.id.tv_provider_name);
+        tvServiceName = findViewById(R.id.tv_service_name);
+        tvOrderDate = findViewById(R.id.tv_order_date);
+        tvOrderAddress = findViewById(R.id.tv_order_address);
+        tvTotalIncome = findViewById(R.id.tv_total_income);
+        ivProviderPhoto = findViewById(R.id.iv_provider_photo);
 
-        // Images
-        ivDriverPhoto = findViewById(R.id.iv_driver_photo);
-        ivHeaderGallery = findViewById(R.id.iv_header_gallery);
-
-        // Buttons
-        btnCall = findViewById(R.id.btn_call_driver);
-        btnChat = findViewById(R.id.btn_chat_driver);
-        btnCancelOrder = findViewById(R.id.btn_cancel_order_final);
-
-        // Header Back Button
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-    }
-
-    private void setupListeners() {
-        // 1. Batalkan Pesanan
-        btnCancelOrder.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CancelOrderActivity.class);
-            intent.putExtra("ORDER_ID", orderId);
-            startActivity(intent);
-        });
-
-        // 2. Chat Mitra
-        btnChat.setOnClickListener(v -> {
-            Toast.makeText(this, "Membuka Chat...", Toast.LENGTH_SHORT).show();
-        });
-
-        // 3. Lihat Profil Mitra
-        View.OnClickListener profileListener = v -> {
-            if(currentOrder != null) {
-                Intent intent = new Intent(this, TalentDetailActivity.class);
-                intent.putExtra("TALENT_ID", currentOrder.getProviderId());
-                startActivity(intent);
-            }
-        };
-        findViewById(R.id.btn_view_profile).setOnClickListener(profileListener);
-        ivDriverPhoto.setOnClickListener(profileListener);
+        // Inisialisasi Tombol
+        btnCancelOrder = findViewById(R.id.btn_cancel_order);
+        // Jika ada tombol lain (misal btn_rate untuk review), inisialisasi juga
     }
 
     private void loadOrderData() {
@@ -99,22 +64,18 @@ public class OrderDetailActivity extends AppCompatActivity {
                         currentOrder = documentSnapshot.toObject(Order.class);
                         if (currentOrder != null) {
                             displayData();
-                            setupButtonVisibility();
+                            setupButtons(); // PENTING: Panggil fungsi setup tombol
                         }
                     }
                 });
     }
 
     private void displayData() {
-        // Isi data Order ke UI
-        tvPickupAddress.setText("Lokasi Pengerjaan Sesuai Pesanan");
-        tvDriverName.setText(currentOrder.getProviderName());
-        tvPlateNumber.setText(currentOrder.getServiceName());
+        tvServiceName.setText(currentOrder.getServiceName());
+        tvOrderDate.setText(currentOrder.getJadwalKerja());
+        tvTotalIncome.setText(PriceFormatter.formatPrice(currentOrder.getTotalBiaya()));
 
-        tvTotalPrice.setText(PriceFormatter.formatPrice(currentOrder.getTotalBiaya()));
-        tvPaymentMethod.setText("Tunai");
-
-        // Load data Provider
+        // Load Data Provider (Talent)
         loadProviderInfo(currentOrder.getProviderId());
     }
 
@@ -123,70 +84,53 @@ public class OrderDetailActivity extends AppCompatActivity {
             if (doc.exists()) {
                 User provider = doc.toObject(User.class);
                 if (provider != null) {
-
-                    // === 1. LOAD FOTO PROFIL (FIX LOGIC DUMMY vs REAL) ===
-                    String photoUrl = provider.getFotoProfilUrl();
-
-                    if (photoUrl != null && !photoUrl.isEmpty()) {
-                        if (photoUrl.startsWith("http") || photoUrl.startsWith("android.resource")) {
-                            // Jika URL Internet atau URI Android -> Load Langsung
-                            Glide.with(this).load(photoUrl)
-                                    .placeholder(R.drawable.profile)
-                                    .into(ivDriverPhoto);
+                    tvProviderName.setText(provider.getNamaLengkap());
+                    if (provider.getFotoProfilUrl() != null) {
+                        if(provider.getFotoProfilUrl().startsWith("http")) {
+                            Glide.with(this).load(provider.getFotoProfilUrl()).into(ivProviderPhoto);
                         } else {
-                            // Jika Nama Resource (Data Dummy, misal "talent_1") -> Cari ID Drawable
-                            int resId = getResources().getIdentifier(photoUrl, "drawable", getPackageName());
-                            if (resId != 0) {
-                                Glide.with(this).load(resId)
-                                        .placeholder(R.drawable.profile)
-                                        .into(ivDriverPhoto);
-                            } else {
-                                ivDriverPhoto.setImageResource(R.drawable.profile);
-                            }
-                        }
-                    } else {
-                        ivDriverPhoto.setImageResource(R.drawable.profile);
-                    }
-
-                    // === 2. LOAD FOTO HEADER DARI GALERI ===
-                    List<String> galeri = provider.getGaleriUrl();
-                    if (galeri != null && !galeri.isEmpty()) {
-                        String headerImage = galeri.get(0); // Ambil foto pertama
-                        Glide.with(this).load(headerImage)
-                                .centerCrop()
-                                .placeholder(R.color.grey_bg)
-                                .into(ivHeaderGallery);
-                    } else {
-                        // Fallback ke foto profil jika galeri kosong
-                        if (photoUrl != null && !photoUrl.isEmpty() && !photoUrl.startsWith("http")) {
-                            // Handle dummy profile pic for header too
-                            int resId = getResources().getIdentifier(photoUrl, "drawable", getPackageName());
-                            if(resId != 0) Glide.with(this).load(resId).centerCrop().into(ivHeaderGallery);
-                        } else {
-                            Glide.with(this).load(photoUrl).centerCrop().placeholder(R.color.grey_bg).into(ivHeaderGallery);
+                            int resId = getResources().getIdentifier(provider.getFotoProfilUrl(), "drawable", getPackageName());
+                            if(resId!=0) Glide.with(this).load(resId).into(ivProviderPhoto);
                         }
                     }
-
-                    // Rating
-                    tvDriverRating.setText("5.0");
                 }
             }
         });
     }
 
-    private void setupButtonVisibility() {
+    // --- BAGIAN UTAMA LOGIKA TOMBOL ---
+    private void setupButtons() {
         String status = currentOrder.getStatusPesanan();
 
+        // Default: Sembunyikan semua tombol dulu
+        btnCancelOrder.setVisibility(View.GONE);
+
+        // LOGIKA: Tombol Batal HANYA muncul jika status "pending"
         if (Constants.ORDER_STATUS_PENDING.equals(status)) {
+
             btnCancelOrder.setVisibility(View.VISIBLE);
-        } else {
-            btnCancelOrder.setVisibility(View.GONE);
+            btnCancelOrder.setOnClickListener(v -> cancelOrder());
+
         }
+        // Tambahkan logika lain jika perlu (misal tombol Review jika status completed)
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(orderId != null) loadOrderData();
+    private void cancelOrder() {
+        // Update status di Firestore menjadi 'cancelled'
+        db.collection("orders").document(orderId).update("statusPesanan", Constants.ORDER_STATUS_CANCELLED)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Pesanan berhasil dibatalkan", Toast.LENGTH_SHORT).show();
+
+                    // KIRIM NOTIFIKASI KE TALENT (PROVIDER)
+                    if (currentOrder != null) {
+                        String talentId = currentOrder.getProviderId();
+                        String title = "Pesanan Dibatalkan ❌";
+                        String msg = "Pelanggan membatalkan pesanan untuk jasa: " + currentOrder.getServiceName();
+                        NotificationUtils.sendNotification(talentId, title, msg);
+                    }
+
+                    loadOrderData(); // Refresh halaman
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Gagal membatalkan: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

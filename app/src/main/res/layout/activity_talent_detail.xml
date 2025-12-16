@@ -301,7 +301,7 @@
             <Button
                 android:id="@+id/btn_contact"
                 android:layout_width="150dp"
-                android:layout_height="50dp"
+                android:layout_height="60dp"
                 android:text="Pesan Sekarang"
                 android:fontFamily="@font/poppins_bold"
                 android:backgroundTint="#111D5E"

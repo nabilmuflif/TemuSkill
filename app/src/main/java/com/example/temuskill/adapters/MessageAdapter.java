@@ -22,7 +22,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<Message> messages;
     private Context context;
     private String currentUserId;
-    private String partnerPhotoUrl; // Variabel untuk menyimpan URL foto lawan bicara
+     private String partnerPhotoUrl; // Variabel untugv
 
     public MessageAdapter(Context context, List<Message> messages, String currentUserId) {
         this.context = context;
@@ -91,17 +91,15 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    // --- View Holder Pesan Diterima (Kiri) ---
     class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage, tvTime;
-        ImageView ivAvatar; // Pengganti tvSenderName
+        ImageView ivAvatar;
 
         ReceivedMessageViewHolder(View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tv_message);
             tvTime = itemView.findViewById(R.id.tv_time);
 
-            // PERBAIKAN: Inisialisasi iv_avatar, HAPUS tv_sender_name
             ivAvatar = itemView.findViewById(R.id.iv_avatar);
         }
 
