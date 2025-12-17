@@ -1,11 +1,13 @@
 package com.example.temuskill.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,6 +47,7 @@ public class MyReviewsActivity extends AppCompatActivity {
     private void loadMyReviews() {
         String myUid = sessionManager.getUserId();
 
+        // REVISI: Menambahkan addOnFailureListener untuk cek error Index
         db.collection("reviews")
                 .whereEqualTo("providerId", myUid) // Ambil review UNTUK provider ini
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -63,6 +66,11 @@ public class MyReviewsActivity extends AppCompatActivity {
                         rvReviews.setVisibility(View.VISIBLE);
                         rvReviews.setAdapter(new ProviderReviewAdapter(list));
                     }
+                })
+                .addOnFailureListener(e -> {
+                    // PENTING: Log ini akan memunculkan Link Index di Logcat jika index belum dibuat
+                    Log.e("FirestoreError", "Gagal ambil review: ", e);
+                    Toast.makeText(MyReviewsActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 

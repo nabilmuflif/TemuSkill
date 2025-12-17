@@ -12,6 +12,9 @@ public class Order {
     private String catatan;
     private long createdAt;
 
+    // TAMBAHAN: Field lokasi yang sebelumnya hilang
+    private String lokasi;
+
     private String serviceName;
     private String providerName;
     private String providerId;
@@ -54,6 +57,11 @@ public class Order {
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    // === TAMBAHAN GETTER & SETTER LOKASI ===
+    public String getLokasi() { return lokasi; }
+    public void setLokasi(String lokasi) { this.lokasi = lokasi; }
+    // =======================================
 
     public String getServiceName() { return serviceName; }
     public void setServiceName(String serviceName) { this.serviceName = serviceName; }

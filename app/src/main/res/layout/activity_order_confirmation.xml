@@ -1,170 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F9F9">
+    android:background="#F8F9FA"
+    android:fillViewport="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:paddingBottom="40dp">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="220dp">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/populer1"
-                android:scaleType="centerCrop"/>
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_arrow_back_ios"
-                android:background="@drawable/bg_circle_white_alpha"
-                android:paddingStart="8dp"
-                android:layout_margin="20dp"/>
-        </FrameLayout>
++
 
-        <LinearLayout
+        <View
+            android:id="@+id/header_gradient"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:background="@drawable/bg_gradient_black_transparent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="24dp"
+            android:src="@drawable/ic_arrow_back_ios"
+            android:paddingStart="10dp"
+            android:background="@drawable/bg_btn_back_circle"
+            android:elevation="4dp"
+            app:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_provider_photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="140dp"
+            android:src="@drawable/profile"
+            app:civ_border_width="4dp"
+            app:civ_border_color="@color/white"
+            android:elevation="12dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_bottom_sheet_rounded"
-            android:layout_marginTop="-40dp"
-            android:padding="24dp">
-
-            <TextView
-                android:id="@+id/tv_provider_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nama Provider"
-                android:fontFamily="@font/poppins_bold"
-                android:textSize="20sp"
-                android:textColor="#333"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rincian Pesanan"
-                android:fontFamily="@font/poppins_bold"
-                android:layout_marginTop="24dp"
-                android:textColor="#333"/>
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="190dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/white"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Layanan"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tv_service_name_confirm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nama Jasa"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="12sp"
-                    android:textColor="#333"/>
-            </LinearLayout>
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="60dp"
+                android:paddingBottom="32dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
                 <TextView
-                    android:layout_width="0dp"
+                    android:id="@+id/tv_provider_name"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Durasi"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tv_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1 Jam"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="12sp"
-                    android:textColor="#333"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total Harga"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tv_total_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rp 50.000"
                     android:fontFamily="@font/poppins_bold"
-                    android:textSize="14sp"
-                    android:textColor="#111D5E"/>
+                    android:gravity="center"
+                    tools:text="Budi Santoso"
+                    android:textColor="#1A1A1A"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/tv_provider_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    tools:text="Teknisi Elektronik"
+                    android:textColor="#757575"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Rincian Pesanan"
+                    android:textColor="#1A1A1A"
+                    android:textSize="16sp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardBackgroundColor="#F8F9FA"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="Layanan"
+                                android:textColor="#757575"/>
+                            <TextView
+                                android:id="@+id/tv_service_name_confirm"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_medium"
+                                tools:text="Service AC"
+                                android:textColor="#1A1A1A"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="Durasi"
+                                android:textColor="#757575"/>
+                            <TextView
+                                android:id="@+id/tv_duration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_medium"
+                                tools:text="2 Jam"
+                                android:textColor="#1A1A1A"/>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="#E0E0E0" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="Total Tagihan"
+                                android:textColor="#1A1A1A"
+                                android:textSize="15sp" />
+                            <TextView
+                                android:id="@+id/tv_total_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                tools:text="Rp 150.000"
+                                android:textColor="#111D5E"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Metode Pembayaran"
+                    android:textColor="#1A1A1A"
+                    android:textSize="16sp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_payment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <RadioButton
+                            android:id="@+id/rb_qris"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:button="@null"
+                            android:checked="true"
+                            android:drawableEnd="@drawable/ic_check_circle"
+                            android:drawableTint="#111D5E"
+                            android:fontFamily="@font/poppins_medium"
+                            android:padding="16dp"
+                            android:text="QRIS (Scan Barcode)"
+                            android:textColor="#1A1A1A"
+                            android:textSize="14sp"/>
+                    </androidx.cardview.widget.CardView>
+                </RadioGroup>
+
+                <Button
+                    android:id="@+id/btn_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:backgroundTint="#111D5E"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Konfirmasi Pesanan"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    android:elevation="6dp"/>
+
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Metode Pembayaran"
-                android:fontFamily="@font/poppins_bold"
-                android:layout_marginTop="24dp"
-                android:textColor="#333"/>
-
-            <RadioGroup
-                android:id="@+id/rg_payment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp">
-
-                <RadioButton
-                    android:id="@+id/rb_va"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Virtual Account"
-                    android:background="@drawable/bg_edittext"
-                    android:button="@null"
-                    android:padding="12dp"
-                    android:gravity="center"
-                    android:layout_marginEnd="8dp"/>
-
-                <RadioButton
-                    android:id="@+id/rb_qris"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="QRIS"
-                    android:background="@drawable/bg_edittext"
-                    android:button="@null"
-                    android:padding="12dp"
-                    android:gravity="center"
-                    android:checked="true"/>
-            </RadioGroup>
-
-            <Button
-                android:id="@+id/btn_confirm"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Konfirmasi Pesanan"
-                android:backgroundTint="#111D5E"
-                android:fontFamily="@font/poppins_bold"
-                android:layout_marginTop="30dp"/>
-
-        </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

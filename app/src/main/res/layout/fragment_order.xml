@@ -34,11 +34,6 @@
             android:textColor="@color/black"
             android:gravity="center"/>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/notifikasi"
-            app:tint="@color/black"/>
     </LinearLayout>
 
     <HorizontalScrollView

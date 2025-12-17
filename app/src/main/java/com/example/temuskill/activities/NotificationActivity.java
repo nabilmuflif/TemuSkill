@@ -1,11 +1,13 @@
 package com.example.temuskill.activities;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.temuskill.R;
-import com.example.temuskill.adapters.NotificationAdapter; // Import Adapter Baru
+import com.example.temuskill.adapters.NotificationAdapter;
 import com.example.temuskill.models.Notification;
 import com.example.temuskill.utils.SessionManager;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,7 +19,7 @@ import java.util.List;
 public class NotificationActivity extends AppCompatActivity {
 
     private RecyclerView rvNotifications;
-    private NotificationAdapter adapter; // Menggunakan class adapter terpisah
+    private NotificationAdapter adapter;
     private FirebaseFirestore db;
     private SessionManager sessionManager;
 
@@ -58,7 +60,9 @@ public class NotificationActivity extends AppCompatActivity {
                     rvNotifications.setAdapter(adapter);
                 })
                 .addOnFailureListener(e -> {
-                    // Handle error jika perlu (misal log atau toast)
+                    // REVISI: Menambahkan penanganan error agar bisa debug Index
+                    Log.e("FirestoreError", "Gagal ambil notifikasi: ", e);
+                    Toast.makeText(NotificationActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }

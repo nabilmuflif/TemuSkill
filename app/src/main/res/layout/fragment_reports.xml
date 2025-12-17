@@ -25,11 +25,6 @@
 
         <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_menu_sort"
-            app:tint="@color/black"/>
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -77,35 +72,7 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"/>
 
-                <TextView
-                    android:text="Bulan"
-                    android:textSize="10sp"
-                    android:textColor="#757575"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/bg_chip_inactive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"/>
-                <TextView
-                    android:text="Pekan"
-                    android:textSize="10sp"
-                    android:textColor="#FFFFFF"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/bg_chip_active"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"/>
-                <TextView
-                    android:text="Hari ini"
-                    android:textSize="10sp"
-                    android:textColor="#757575"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/bg_chip_inactive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+
             </LinearLayout>
 
             <androidx.cardview.widget.CardView

@@ -2,188 +2,213 @@ package com.example.temuskill.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.temuskill.R;
 import com.example.temuskill.activities.OrderDetailActivity;
-import com.example.temuskill.activities.ProviderOrderDetailActivity;
 import com.example.temuskill.activities.RateOrderActivity;
 import com.example.temuskill.models.Order;
 import com.example.temuskill.models.User;
-import com.example.temuskill.utils.Constants;
 import com.example.temuskill.utils.PriceFormatter;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
-    private List<Order> orders;
-    private Context context;
-    private boolean isProvider;
-    private ActivityResultLauncher<Intent> rateOrderLauncher;
 
-    public OrderAdapter(List<Order> orders, Context context, boolean isProvider, ActivityResultLauncher<Intent> rateOrderLauncher) {
-        this.orders = orders;
+    private Context context;
+    private List<Order> orderList;
+    private FirebaseFirestore db;
+    private boolean isProviderView; // TAMBAHAN: untuk cek role
+
+    // CONSTRUCTOR BARU: tambah parameter isProviderView
+    public OrderAdapter(Context context, List<Order> orderList, boolean isProviderView) {
         this.context = context;
-        this.isProvider = isProvider;
-        this.rateOrderLauncher = rateOrderLauncher;
+        this.orderList = orderList;
+        this.db = FirebaseFirestore.getInstance();
+        this.isProviderView = isProviderView;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_order, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Order order = orders.get(position);
-        holder.bind(order);
-    }
+        Order order = orderList.get(position);
 
-    @Override
-    public int getItemCount() { return orders.size(); }
-    @Override
-    public long getItemId(int position) { return position; }
-    @Override
-    public int getItemViewType(int position) { return position; }
+        // 1. DATA DASAR
+        holder.tvServiceName.setText(order.getServiceName());
+        holder.tvTotalBiaya.setText(PriceFormatter.formatPrice(order.getTotalBiaya()));
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvService, tvPrice, tvDate, tvTime, tvStatusLabel;
-        Button btnAction;
-        ImageView ivProfile;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            tvName = itemView.findViewById(R.id.tv_provider_name);
-            tvService = itemView.findViewById(R.id.tv_service_name);
-            tvPrice = itemView.findViewById(R.id.tv_total_biaya);
-            tvDate = itemView.findViewById(R.id.tv_jadwal);
-            tvTime = itemView.findViewById(R.id.tv_jam);
-            tvStatusLabel = itemView.findViewById(R.id.tv_status_label);
-            btnAction = itemView.findViewById(R.id.btn_action);
-            ivProfile = itemView.findViewById(R.id.iv_provider);
+        String fullJadwal = order.getJadwalKerja();
+        if (fullJadwal != null && fullJadwal.contains(",")) {
+            String[] parts = fullJadwal.split(",");
+            holder.tvJadwal.setText(parts[0].trim());
+            if (parts.length > 1) holder.tvJam.setText(parts[1].trim());
+        } else {
+            holder.tvJadwal.setText(fullJadwal);
+            holder.tvJam.setText("-");
         }
 
-        void bind(Order order) {
-            tvService.setText(order.getServiceName());
-            tvPrice.setText(PriceFormatter.formatPrice(order.getTotalBiaya()));
+        // 2. INFO PROVIDER/CLIENT (tergantung role)
+        String targetUserId = isProviderView ? order.getClientId() : order.getProviderId();
 
-            if (order.getCreatedAt() > 0) {
-                Date date = new Date(order.getCreatedAt());
-                tvDate.setText(new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID")).format(date));
-                tvTime.setText(new SimpleDateFormat("HH:mm", new Locale("id", "ID")).format(date));
-            } else {
-                tvDate.setText("-");
-                tvTime.setText("-");
-            }
-
-            String targetUserId = isProvider ? order.getClientId() : order.getProviderId();
-            tvName.setText(isProvider ? "Pelanggan" : order.getProviderName());
-            loadUserImageAndName(targetUserId);
-
-            setupStatusUI(order.getStatusPesanan(), order);
-
-            itemView.setOnClickListener(v -> {
-                Intent intent;
-                if (isProvider) {
-                    intent = new Intent(context, ProviderOrderDetailActivity.class);
-                } else {
-                    intent = new Intent(context, OrderDetailActivity.class);
-                }
-                intent.putExtra("ORDER_ID", order.getOrderId());
-                context.startActivity(intent);
-            });
-        }
-
-        private void loadUserImageAndName(String uid) {
-            FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                    .addOnSuccessListener(doc -> {
-                        if (doc.exists()) {
-                            User user = doc.toObject(User.class);
+        if (targetUserId != null) {
+            db.collection("users").document(targetUserId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            User user = documentSnapshot.toObject(User.class);
                             if (user != null) {
-                                tvName.setText(user.getNamaLengkap());
-                                if (user.getFotoProfilUrl() != null) {
-                                    String url = user.getFotoProfilUrl();
-                                    if(url.startsWith("http")) Glide.with(context).load(url).placeholder(R.drawable.profile).into(ivProfile);
-                                    else {
-                                        int resId = context.getResources().getIdentifier(url, "drawable", context.getPackageName());
-                                        if(resId!=0) Glide.with(context).load(resId).into(ivProfile);
+                                holder.tvProviderName.setText(user.getNamaLengkap());
+                                if (user.getFotoProfilUrl() != null && !user.getFotoProfilUrl().isEmpty()) {
+                                    if (user.getFotoProfilUrl().startsWith("http")) {
+                                        Glide.with(context).load(user.getFotoProfilUrl()).placeholder(R.drawable.profile).into(holder.ivProvider);
+                                    } else {
+                                        int resId = context.getResources().getIdentifier(user.getFotoProfilUrl(), "drawable", context.getPackageName());
+                                        if (resId != 0) Glide.with(context).load(resId).into(holder.ivProvider);
                                     }
                                 }
                             }
                         }
                     });
+        } else {
+            holder.tvProviderName.setText(isProviderView ? "Pencari Jasa" : "Penyedia Jasa");
         }
 
-        private void setupStatusUI(String status, Order order) {
-            tvStatusLabel.setVisibility(View.VISIBLE);
-            btnAction.setVisibility(View.GONE);
+        // 3. LOGIKA STATUS & TOMBOL (DENGAN ROLE CHECK)
+        String rawStatus = order.getStatusPesanan();
+        String status = (rawStatus != null) ? rawStatus.trim().toLowerCase() : "pending";
 
-            switch (status) {
-                case Constants.ORDER_STATUS_PENDING:
-                    showLabel("Menunggu", "#FF9800", R.drawable.bg_status_active);
-                    break;
+        String statusText = "Menunggu";
+        int bgColor = Color.GRAY;
+        int textColor = Color.WHITE;
 
-                case Constants.ORDER_STATUS_CONFIRMED:
-                    showLabel("Aktif", "#4CAF50", R.drawable.bg_status_green);
-                    break;
+        // Reset Default
+        holder.btnAction.setVisibility(View.GONE);
+        holder.tvStatusLabel.setVisibility(View.GONE);
 
-                // [LOGIKA BARU YANG LEBIH SIMPEL]
+        switch (status) {
+            case "menunggu":
+            case "pending":
+                statusText = "Menunggu Konfirmasi";
+                bgColor = Color.parseColor("#FFC107");
+                textColor = Color.BLACK;
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
 
-                case Constants.ORDER_STATUS_COMPLETED:
-                    // Status 'completed' artinya Pekerjaan Selesai, tapi BELUM direview
-                    if (isProvider) {
-                        // Provider melihat "Menunggu Review" atau "Selesai" (tergantung preferensi)
-                        showLabel("Menunggu Review", "#FF9800", R.drawable.bg_status_active);
-                    } else {
-                        // Pencari Jasa melihat Tombol Review
-                        tvStatusLabel.setVisibility(View.GONE);
-                        btnAction.setVisibility(View.VISIBLE);
-                        btnAction.setText("Beri Penilaian");
+            case "aktif":
+            case "confirmed":
+            case "diproses":
+                statusText = "Sedang Diproses";
+                bgColor = Color.parseColor("#2196F3");
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
 
-                        btnAction.setOnClickListener(v -> {
-                            Intent intent = new Intent(context, RateOrderActivity.class);
-                            intent.putExtra("ORDER_ID", order.getOrderId());
-                            intent.putExtra("SERVICE_ID", order.getServiceId());
+            case "dalam perjalanan":
+            case "otw":
+                statusText = "Provider OTW";
+                bgColor = Color.parseColor("#FF9800");
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
 
-                            if (rateOrderLauncher != null) {
-                                rateOrderLauncher.launch(intent);
-                            } else {
-                                context.startActivity(intent);
-                            }
-                        });
-                    }
-                    break;
+            case "dalam pengerjaan":
+            case "in_progress":
+                statusText = "Sedang Dikerjakan";
+                bgColor = Color.parseColor("#4CAF50");
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
 
-                case Constants.ORDER_STATUS_REVIEWED:
-                    // Status 'reviewed' artinya SUDAH BERES TOTAL
-                    showLabel("Selesai", "#111D5E", R.drawable.bg_status_light_blue);
-                    break;
+            // STATUS COMPLETED: BEDA TAMPILAN CLIENT vs PROVIDER
+            case "selesai":
+            case "completed":
+                if (isProviderView) {
+                    // PROVIDER: Hanya tampilkan label "Selesai" abu-abu
+                    statusText = "Selesai";
+                    bgColor = Color.parseColor("#757575");
+                    holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                    holder.btnAction.setVisibility(View.GONE);
+                } else {
+                    // CLIENT: Tampilkan tombol "Beri Penilaian"
+                    holder.tvStatusLabel.setVisibility(View.GONE);
+                    holder.btnAction.setVisibility(View.VISIBLE);
+                    holder.btnAction.setText("Beri Penilaian");
+                    holder.btnAction.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#111D5E")));
+                    holder.btnAction.setOnClickListener(v -> {
+                        Intent intent = new Intent(context, RateOrderActivity.class);
+                        intent.putExtra("ORDER_ID", order.getOrderId());
+                        intent.putExtra("PROVIDER_ID", order.getProviderId());
+                        context.startActivity(intent);
+                    });
+                }
+                break;
 
-                case Constants.ORDER_STATUS_CANCELLED:
-                    showLabel("Dibatalkan", "#F44336", R.drawable.bg_status_active);
-                    break;
-            }
+            // STATUS REVIEWED: Semua tampilkan label "Selesai"
+            case "reviewed":
+            case "diulas":
+            case "sudah dinilai":
+                statusText = "Selesai";
+                bgColor = Color.parseColor("#757575");
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                holder.btnAction.setVisibility(View.GONE);
+                break;
+
+            case "dibatalkan":
+            case "cancelled":
+                statusText = "Dibatalkan";
+                bgColor = Color.parseColor("#F44336");
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
+
+            default:
+                statusText = status;
+                bgColor = Color.GRAY;
+                holder.tvStatusLabel.setVisibility(View.VISIBLE);
+                break;
         }
 
-        private void showLabel(String text, String colorHex, int bgRes) {
-            tvStatusLabel.setText(text);
-            tvStatusLabel.setTextColor(Color.parseColor(colorHex));
-            tvStatusLabel.setBackgroundResource(bgRes);
+        holder.tvStatusLabel.setText(statusText);
+        holder.tvStatusLabel.setTextColor(textColor);
+        holder.tvStatusLabel.setBackgroundTintList(ColorStateList.valueOf(bgColor));
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OrderDetailActivity.class);
+            intent.putExtra("ORDER_ID", order.getOrderId());
+            context.startActivity(intent);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return orderList.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvProviderName, tvServiceName, tvJadwal, tvJam, tvTotalBiaya, tvStatusLabel;
+        ImageView ivProvider;
+        Button btnAction;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvProviderName = itemView.findViewById(R.id.tv_provider_name);
+            tvServiceName = itemView.findViewById(R.id.tv_service_name);
+            tvJadwal = itemView.findViewById(R.id.tv_jadwal);
+            tvJam = itemView.findViewById(R.id.tv_jam);
+            tvTotalBiaya = itemView.findViewById(R.id.tv_total_biaya);
+            tvStatusLabel = itemView.findViewById(R.id.tv_status_label);
+            ivProvider = itemView.findViewById(R.id.iv_provider);
+            btnAction = itemView.findViewById(R.id.btn_action);
         }
     }
 }

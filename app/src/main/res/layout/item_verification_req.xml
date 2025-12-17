@@ -20,18 +20,17 @@
             android:layout_height="50dp"
             android:src="@drawable/profile"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout
+            android:id="@+id/info_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginStart="12dp"
             app:layout_constraintStart_toEndOf="@id/iv_avatar"
-            app:layout_constraintEnd_toStartOf="@id/layout_role"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_avatar">
 
             <TextView
                 android:id="@+id/tv_name"
@@ -52,39 +51,64 @@
                 android:fontFamily="@font/poppins_regular"
                 android:textColor="#757575"
                 android:textSize="11sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Penyedia Jasa"
+                android:textSize="10sp"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="#111D5E"
+                android:background="@drawable/bg_chip_inactive"
+                android:backgroundTint="#E8EAF6"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:layout_marginTop="4dp"/>
         </LinearLayout>
 
+        <!-- Container untuk 2 tombol -->
         <LinearLayout
-            android:id="@+id/layout_role"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:gravity="end"
+            android:layout_marginTop="12dp"
+            app:layout_constraintStart_toEndOf="@id/iv_avatar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/info_layout">
 
+            <!-- Tombol TOLAK -->
             <TextView
+                android:id="@+id/btn_reject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Penyedia\nJasa"
-                android:textSize="10sp"
+                android:text="Tolak"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_reject"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:textSize="11sp"
                 android:fontFamily="@font/poppins_bold"
-                android:textColor="#000"
-                android:textAlignment="textEnd"
-                android:layout_marginBottom="4dp"/>
+                android:elevation="2dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginEnd="8dp"/>
 
+            <!-- Tombol KONFIRMASI -->
             <TextView
-                android:id="@+id/btn_action"
+                android:id="@+id/btn_confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Review >"
-                android:textColor="#4CAF50"
-                android:background="@drawable/bg_status_active"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:textSize="10sp"
-                android:fontFamily="@font/poppins_bold"/>
+                android:text="Konfirmasi"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_confirm"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_bold"
+                android:elevation="2dp"
+                android:clickable="true"
+                android:focusable="true"/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

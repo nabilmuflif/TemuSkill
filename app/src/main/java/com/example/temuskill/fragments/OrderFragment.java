@@ -1,20 +1,13 @@
 package com.example.temuskill.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,19 +31,19 @@ public class OrderFragment extends Fragment {
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private CircleImageView ivProfileHeader;
+
     private TextView filterAll, filterActive, filterUnreviewed, filterCompleted, filterCancelled;
 
     private OrderAdapter adapter;
     private FirebaseFirestore db;
     private SessionManager sessionManager;
     private ListenerRegistration firestoreListener;
-    private ActivityResultLauncher<Intent> rateOrderLauncher;
 
-    // 1. Tambahkan 'final'
     private final List<Order> allOrderList = new ArrayList<>();
     private final List<Order> displayedList = new ArrayList<>();
 
     private String currentFilter = "ALL";
+    private boolean isProvider;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,27 +51,13 @@ public class OrderFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         sessionManager = new SessionManager(getContext());
+        isProvider = sessionManager.isPenyediaJasa();
 
-        setupActivityResultLauncher();
         initViews(view);
         setupAdapter();
         setupFilterListeners();
 
         return view;
-    }
-
-    private void setupActivityResultLauncher() {
-        rateOrderLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (firestoreListener != null) firestoreListener.remove();
-                        allOrderList.clear();
-                        displayedList.clear();
-                        new Handler(Looper.getMainLooper()).postDelayed(this::startRealtimeUpdates, 500);
-                    }
-                }
-        );
     }
 
     @Override
@@ -107,12 +86,17 @@ public class OrderFragment extends Fragment {
         filterCancelled = view.findViewById(R.id.filter_cancelled);
 
         rvOrders.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        TextView tvTitle = view.findViewById(R.id.tv_title);
+        if (tvTitle != null) {
+            tvTitle.setText(isProvider ? "Pekerjaan Masuk" : "Pesanan Saya");
+        }
     }
 
     private void setupAdapter() {
-        // 2. Gunakan requireContext() untuk keamanan null safety
         if (getContext() != null) {
-            adapter = new OrderAdapter(displayedList, requireContext(), sessionManager.isPenyediaJasa(), rateOrderLauncher);
+            // KIRIM parameter isProvider ke adapter
+            adapter = new OrderAdapter(requireContext(), displayedList, isProvider);
             rvOrders.setAdapter(adapter);
         }
     }
@@ -131,7 +115,7 @@ public class OrderFragment extends Fragment {
         String myUid = sessionManager.getUserId();
         if (myUid == null) return;
 
-        String searchField = sessionManager.isPenyediaJasa() ? "providerId" : "clientId";
+        String searchField = isProvider ? "providerId" : "clientId";
 
         Query query = db.collection("orders")
                 .whereEqualTo(searchField, myUid)
@@ -163,60 +147,54 @@ public class OrderFragment extends Fragment {
     private void applyFilter(String filterType) {
         this.currentFilter = filterType;
         updateFilterUI(filterType);
-
         displayedList.clear();
 
         if (filterType.equals("ALL")) {
             displayedList.addAll(allOrderList);
         } else {
             for (Order order : allOrderList) {
-                String status = order.getStatusPesanan();
-                // 3. Switch statement untuk logika filter yang lebih rapi (optional, tapi membersihkan warning if-else chain)
+                String status = order.getStatusPesanan() != null ? order.getStatusPesanan().toLowerCase() : "";
                 switch (filterType) {
                     case "ACTIVE":
-                        if (status.equals(Constants.ORDER_STATUS_PENDING) ||
-                                status.equals(Constants.ORDER_STATUS_CONFIRMED) ||
-                                status.equals(Constants.ORDER_STATUS_IN_PROGRESS)) {
+                        if (status.contains("pending") || status.contains("menunggu") ||
+                                status.contains("aktif") || status.contains("confirmed") ||
+                                status.contains("jalan") || status.contains("otw") ||
+                                status.contains("kerja") || status.contains("progress")) {
                             displayedList.add(order);
                         }
                         break;
                     case "UNREVIEWED":
-                        if (status.equals(Constants.ORDER_STATUS_COMPLETED)) {
+                        if ((status.contains("selesai") || status.contains("completed")) && !order.isReviewed()) {
                             displayedList.add(order);
                         }
                         break;
                     case "COMPLETED":
-                        if (status.equals(Constants.ORDER_STATUS_REVIEWED)) {
+                        if (status.contains("selesai") || status.contains("completed") || status.contains("diulas")) {
                             displayedList.add(order);
                         }
                         break;
                     case "CANCELLED":
-                        if (status.equals(Constants.ORDER_STATUS_CANCELLED)) {
+                        if (status.contains("batal") || status.contains("cancelled")) {
                             displayedList.add(order);
                         }
                         break;
                 }
             }
         }
-
         if (adapter != null) adapter.notifyDataSetChanged();
 
         if (displayedList.isEmpty()) {
-            tvEmpty.setVisibility(View.VISIBLE);
-            rvOrders.setVisibility(View.GONE);
+            if(tvEmpty!=null) tvEmpty.setVisibility(View.VISIBLE);
+            if(rvOrders!=null) rvOrders.setVisibility(View.GONE);
         } else {
-            tvEmpty.setVisibility(View.GONE);
-            rvOrders.setVisibility(View.VISIBLE);
+            if(tvEmpty!=null) tvEmpty.setVisibility(View.GONE);
+            if(rvOrders!=null) rvOrders.setVisibility(View.VISIBLE);
         }
     }
 
     private void updateFilterUI(String activeFilter) {
-        resetChip(filterAll);
-        resetChip(filterActive);
-        resetChip(filterUnreviewed);
-        resetChip(filterCompleted);
-        resetChip(filterCancelled);
-
+        resetChip(filterAll); resetChip(filterActive); resetChip(filterUnreviewed);
+        resetChip(filterCompleted); resetChip(filterCancelled);
         TextView target = null;
         switch (activeFilter) {
             case "ALL": target = filterAll; break;
@@ -225,7 +203,6 @@ public class OrderFragment extends Fragment {
             case "COMPLETED": target = filterCompleted; break;
             case "CANCELLED": target = filterCancelled; break;
         }
-
         if (target != null) {
             target.setBackgroundResource(R.drawable.bg_chip_selected);
             target.setTextColor(Color.WHITE);
@@ -233,25 +210,27 @@ public class OrderFragment extends Fragment {
     }
 
     private void resetChip(TextView chip) {
-        chip.setBackgroundResource(R.drawable.bg_chip_unselected);
-        chip.setTextColor(Color.parseColor("#757575"));
+        if(chip != null) {
+            chip.setBackgroundResource(R.drawable.bg_chip_unselected);
+            chip.setTextColor(Color.parseColor("#757575"));
+        }
     }
 
     private void loadProfileImage() {
         String uid = sessionManager.getUserId();
-        if(uid != null) {
+        if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
-                if(isAdded() && doc.exists()) {
+                if (isAdded() && doc.exists()) {
                     String url = doc.getString("foto_profil");
-                    if(url != null && !url.isEmpty() && ivProfileHeader != null) {
-                        if(url.startsWith("http")) {
-                            Glide.with(this).load(url).placeholder(R.drawable.profile).into(ivProfileHeader);
-                        } else {
-                            // 4. Suppress Warning DiscouragedApi
-                            @SuppressWarnings("DiscouragedApi")
-                            int resId = getResources().getIdentifier(url, "drawable", requireContext().getPackageName());
-                            if(resId != 0) Glide.with(this).load(resId).into(ivProfileHeader);
-                        }
+                    if (url != null && !url.isEmpty() && ivProfileHeader != null) {
+                        try {
+                            if (url.startsWith("http")) {
+                                Glide.with(this).load(url).placeholder(R.drawable.profile).into(ivProfileHeader);
+                            } else {
+                                int resId = getResources().getIdentifier(url, "drawable", requireContext().getPackageName());
+                                if (resId != 0) Glide.with(this).load(resId).into(ivProfileHeader);
+                            }
+                        } catch (Exception e) {}
                     }
                 }
             });
